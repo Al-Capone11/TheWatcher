@@ -1,5 +1,6 @@
 package com.josem.echoofthevoid.game;
 
+import com.mojang.brigadier.CommandDispatcher;
 import com.josem.echoofthevoid.entity.ModEntities;
 import com.josem.echoofthevoid.entity.ShadowStalkerEntity;
 import com.josem.echoofthevoid.network.ClientHorrorPacket;
@@ -11,6 +12,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -34,8 +37,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -53,11 +58,16 @@ public final class FearSystem {
     private static final String SHADOW_ID = "EchoShadowId";
     private static final String SHADOW_COOLDOWN = "EchoShadowCooldown";
     private static final String SHADOW_MOVE = "EchoShadowMove";
+    private static final String SHADOW_SPAWN_X = "EchoShadowSpawnX";
+    private static final String SHADOW_SPAWN_Y = "EchoShadowSpawnY";
+    private static final String SHADOW_SPAWN_Z = "EchoShadowSpawnZ";
     private static final String LAST_DOOR_X = "EchoDoorX";
     private static final String LAST_DOOR_Y = "EchoDoorY";
     private static final String LAST_DOOR_Z = "EchoDoorZ";
     private static final String LAST_DOOR_ACTIVE = "EchoDoorActive";
     private static final String CLIMAX_LOCK = "EchoClimaxLock";
+    private static final String CLIMAX_COOLDOWN = "EchoClimaxCooldown";
+    private static final String FEAR_BAR_VISIBLE = "EchoFearBarVisible";
     private static final Component[] WHISPERS = new Component[] {
         Component.literal("Me ves?"),
         Component.literal("Detras"),
@@ -80,6 +90,7 @@ public final class FearSystem {
         CompoundTag data = player.getPersistentData();
         updateMovementState(player, data);
         updateFear(player, data);
+        syncFearHud(player, data);
         handleAuditoryHallucinations(player, data);
         handleEnvironment(player, data);
         handleInventory(player, data);
@@ -118,6 +129,27 @@ public final class FearSystem {
         }
     }
 
+    @SubscribeEvent
+    public static void onCommandsRegister(RegisterCommandsEvent event) {
+        registerCommands(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            sendFearState(player);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        CompoundTag original = event.getOriginal().getPersistentData();
+        CompoundTag copy = event.getEntity().getPersistentData();
+        if (original.contains(FEAR_BAR_VISIBLE)) {
+            copy.putBoolean(FEAR_BAR_VISIBLE, original.getBoolean(FEAR_BAR_VISIBLE));
+        }
+    }
+
     private static void updateMovementState(ServerPlayer player, CompoundTag data) {
         Vec3 pos = player.position();
         double lastX = data.getDouble(LAST_X);
@@ -139,12 +171,12 @@ public final class FearSystem {
     }
 
     private static void updateFear(ServerPlayer player, CompoundTag data) {
+        if (player.tickCount % 20 != 0) {
+            return;
+        }
+
         int fear = getFear(player);
         int ambientLight = player.level().getMaxLocalRawBrightness(player.blockPosition());
-
-        if (player.getY() < 40) {
-            fear += 1;
-        }
 
         if (ambientLight <= 3) {
             fear += 1;
@@ -253,9 +285,9 @@ public final class FearSystem {
                 return;
             }
 
-            shadow.setYRot(player.getYRot() + 180.0F);
+            shadow.lookAt(player, 30.0F, 30.0F);
 
-            if (player.hasLineOfSight(shadow) && isPlayerLookingAt(player, shadow)) {
+            if (isPlayerLookingAt(player, shadow)) {
                 despawnShadow(player, shadow, data);
                 return;
             }
@@ -273,6 +305,12 @@ public final class FearSystem {
 
     private static void handleClimax(ServerPlayer player, CompoundTag data) {
         int fear = getFear(player);
+        int cooldown = data.getInt(CLIMAX_COOLDOWN);
+        if (cooldown > 0) {
+            data.putInt(CLIMAX_COOLDOWN, cooldown - 1);
+            return;
+        }
+
         if (fear < 90 || data.getBoolean(CLIMAX_LOCK)) {
             return;
         }
@@ -281,10 +319,21 @@ public final class FearSystem {
         player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 60, 0));
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 3));
         forceSpawnAhead(player, data);
-        sendClientEvent(player, 4);
         player.level().playSound(null, player.blockPosition(), SoundEvents.AMBIENT_CAVE.value(), SoundSource.AMBIENT, 0.8F, 0.5F);
         setFear(player, 0);
+        data.putInt(CLIMAX_COOLDOWN, 2400);
         data.putBoolean(CLIMAX_LOCK, false);
+    }
+
+    private static void syncFearHud(ServerPlayer player, CompoundTag data) {
+        if (player.tickCount % 20 != 0) {
+            return;
+        }
+
+        sendFearState(player);
+        if (!data.contains(FEAR_BAR_VISIBLE)) {
+            data.putBoolean(FEAR_BAR_VISIBLE, true);
+        }
     }
 
     private static void forceSpawnAhead(ServerPlayer player, CompoundTag data) {
@@ -310,14 +359,23 @@ public final class FearSystem {
 
         Vec3 view = player.getLookAngle().normalize();
         Vec3 side = new Vec3(-view.z, 0.0D, view.x).normalize();
-        double angleScale = 3.0D + player.getRandom().nextDouble() * 1.5D;
-        double forwardScale = 8.0D + player.getRandom().nextDouble() * 3.0D;
-        Vec3 offset = view.scale(forwardScale).add(side.scale(player.getRandom().nextBoolean() ? angleScale : -angleScale));
-        Vec3 spawnPos = player.position().add(offset);
-        shadow.moveTo(spawnPos.x, player.getY(), spawnPos.z, player.getYRot() + 180.0F, 0.0F);
+        double sideScale = 11.5D + player.getRandom().nextDouble() * 3.5D;
+        double forwardScale = 1.5D + player.getRandom().nextDouble() * 1.5D;
+        Vec3 offset = side.scale(player.getRandom().nextBoolean() ? sideScale : -sideScale).add(view.scale(forwardScale));
+        BlockPos spawnBase = BlockPos.containing(player.position().add(offset));
+        BlockPos spawnPos = findShadowSpawn(player, spawnBase);
+        if (spawnPos == null) {
+            data.putInt(SHADOW_COOLDOWN, 80);
+            return;
+        }
+
+        shadow.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, player.getYRot() + 180.0F, 0.0F);
         player.level().addFreshEntity(shadow);
         data.putUUID(SHADOW_ID, shadow.getUUID());
         data.putInt(SHADOW_MOVE, player.tickCount);
+        data.putDouble(SHADOW_SPAWN_X, shadow.getX());
+        data.putDouble(SHADOW_SPAWN_Y, shadow.getY());
+        data.putDouble(SHADOW_SPAWN_Z, shadow.getZ());
     }
 
     private static void moveShadowCloser(ServerPlayer player, ShadowStalkerEntity shadow) {
@@ -351,14 +409,35 @@ public final class FearSystem {
 
     private static boolean isPlayerLookingAt(Player player, Entity entity) {
         Vec3 start = player.getEyePosition();
-        Vec3 toEntity = entity.getEyePosition().subtract(start).normalize();
+        Vec3 target = entity.getBoundingBox().getCenter();
+        Vec3 toEntity = target.subtract(start).normalize();
         double dot = player.getLookAngle().normalize().dot(toEntity);
-        if (dot < 0.985D) {
+        if (dot < 0.94D) {
             return false;
         }
 
-        BlockHitResult hit = player.level().clip(new ClipContext(start, entity.getEyePosition(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+        BlockHitResult hit = player.level().clip(new ClipContext(start, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         return hit.getType() != HitResult.Type.BLOCK;
+    }
+
+    private static BlockPos findShadowSpawn(ServerPlayer player, BlockPos preferred) {
+        for (int dy = -2; dy <= 2; dy++) {
+            BlockPos candidate = preferred.offset(0, dy, 0);
+            if (canSpawnShadowAt(player, candidate)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private static boolean canSpawnShadowAt(ServerPlayer player, BlockPos pos) {
+        BlockState feet = player.level().getBlockState(pos);
+        BlockState head = player.level().getBlockState(pos.above());
+        BlockState below = player.level().getBlockState(pos.below());
+        return feet.canBeReplaced()
+            && head.canBeReplaced()
+            && !below.canBeReplaced()
+            && player.level().getMaxLocalRawBrightness(pos) <= 7;
     }
 
     private static boolean isNearLitCampfire(ServerPlayer player) {
@@ -403,5 +482,32 @@ public final class FearSystem {
 
     private static void sendClientEvent(ServerPlayer player, int eventId) {
         ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ClientHorrorPacket(eventId));
+    }
+
+    private static void sendFearState(ServerPlayer player) {
+        CompoundTag data = player.getPersistentData();
+        boolean visible = !data.contains(FEAR_BAR_VISIBLE) || data.getBoolean(FEAR_BAR_VISIBLE);
+        ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ClientHorrorPacket(100, getFear(player)));
+        ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ClientHorrorPacket(101, visible ? 1 : 0));
+    }
+
+    private static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(
+            Commands.literal("watcherfearbar")
+                .requires(source -> source.hasPermission(0))
+                .then(Commands.literal("on").executes(context -> setFearBar(context.getSource(), true)))
+                .then(Commands.literal("off").executes(context -> setFearBar(context.getSource(), false)))
+        );
+    }
+
+    private static int setFearBar(CommandSourceStack source, boolean enabled) {
+        ServerPlayer player = source.getPlayer();
+        if (player == null) {
+            return 0;
+        }
+        player.getPersistentData().putBoolean(FEAR_BAR_VISIBLE, enabled);
+        sendFearState(player);
+        source.sendSuccess(() -> Component.literal("Fear bar " + (enabled ? "enabled" : "disabled")), false);
+        return 1;
     }
 }

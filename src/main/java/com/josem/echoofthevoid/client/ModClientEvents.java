@@ -8,6 +8,7 @@ import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 
 public final class ModClientEvents {
@@ -20,6 +21,7 @@ public final class ModClientEvents {
     public static void register(IEventBus modBus) {
         modBus.addListener(ModClientEvents::registerLayerDefinitions);
         modBus.addListener(ModClientEvents::registerRenderers);
+        modBus.addListener(ModClientEvents::registerGuiOverlays);
     }
 
     private static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
@@ -31,5 +33,9 @@ public final class ModClientEvents {
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.SHADOW_STALKER.get(), ShadowStalkerRenderer::new);
+    }
+
+    private static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
+        event.registerAboveAll("fear_bar", FearBarOverlay.OVERLAY);
     }
 }

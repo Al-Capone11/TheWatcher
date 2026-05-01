@@ -15,6 +15,8 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class ClientEffects {
     private static int fakeCrashTicks;
+    private static int fearLevel;
+    private static boolean fearBarEnabled = true;
 
     private ClientEffects() {
     }
@@ -83,6 +85,22 @@ public final class ClientEffects {
 
         fakeCrashTicks = 40;
         minecraft.setScreen(new FakeDisconnectScreen());
+    }
+
+    public static int getFearLevel() {
+        return fearLevel;
+    }
+
+    public static boolean isFearBarEnabled() {
+        return fearBarEnabled;
+    }
+
+    public static void setFearLevel(int value) {
+        fearLevel = value;
+    }
+
+    public static void setFearBarEnabled(boolean enabled) {
+        fearBarEnabled = enabled;
     }
 
     @SubscribeEvent
