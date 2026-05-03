@@ -1,0 +1,74 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.gradle.userdev' version '7.0.192'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = 'the-watcher'
+}
+
+buildDir = file("${System.getProperty('user.home')}\\Documents\\Codex\\the-watcher-neoforge-build")
+def projectReleaseDir = file("${projectDir}\\dist")
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+repositories {
+    maven { url = 'https://maven.neoforged.net/releases' }
+    mavenCentral()
+}
+
+dependencies {
+    implementation "net.neoforged:forge:${neoforge_version}"
+}
+
+runs {
+    configureEach {
+        workingDirectory file('run')
+        systemProperty 'forge.logging.markers', 'REGISTRIES'
+        systemProperty 'forge.logging.console.level', 'debug'
+        modSource sourceSets.main
+    }
+
+    client { }
+
+    server {
+        arguments.add('--nogui')
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    var replaceProperties = [
+        minecraft_version      : minecraft_version,
+        minecraft_version_range: minecraft_version_range,
+        forge_version_range    : forge_version_range,
+        neoforge_version_range : neoforge_version_range,
+        loader_version_range   : loader_version_range,
+        mod_id                 : mod_id,
+        mod_name               : mod_name,
+        mod_license            : mod_license,
+        mod_version            : mod_version,
+        mod_authors            : mod_authors,
+        mod_description        : mod_description
+    ]
+
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties
+    }
+}
+
+tasks.register('copyReleaseJar', Copy) {
+    dependsOn tasks.named('build')
+    from tasks.named('jar').flatMap { it.archiveFile }
+    into projectReleaseDir
+    rename { String _ -> "the-watcher-${project.version}-neoforge.jar" }
+}

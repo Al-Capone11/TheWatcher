@@ -1,0 +1,6 @@
+{
+  "itemGroup.echoofthevoid": "The Watcher",
+  "entity.echoofthevoid.shadow_stalker": "The Watcher",
+  "screen.echoofthevoid.reconnecting": "Connection lost",
+  "screen.echoofthevoid.reconnecting.detail": "Internal Exception: java.io.IOException: Reality desynced"
+}

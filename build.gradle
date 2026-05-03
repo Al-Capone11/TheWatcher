@@ -83,5 +83,25 @@ tasks.register('copyReleaseJar', Copy) {
     dependsOn tasks.named('build')
     from tasks.named('jar').flatMap { it.archiveFile }
     into projectReleaseDir
-    rename { String _ -> "the-watcher-${project.version}.jar" }
+    rename { String _ -> "the-watcher-${project.version}-forge.jar" }
+}
+
+tasks.register('buildFabric', GradleBuild) {
+    group = 'build'
+    description = 'Runs Gradle build in fabric/'
+    dir = file("${rootDir}/fabric")
+    tasks = ['build']
+}
+
+tasks.register('buildNeoForge', GradleBuild) {
+    group = 'build'
+    description = 'Runs Gradle build in neoforge/'
+    dir = file("${rootDir}/neoforge")
+    tasks = ['build']
+}
+
+tasks.register('buildAllLoaders') {
+    group = 'build'
+    description = 'Builds Forge (this project), Fabric, and NeoForge'
+    dependsOn 'build', 'buildFabric', 'buildNeoForge'
 }

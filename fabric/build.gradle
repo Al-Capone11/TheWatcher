@@ -1,0 +1,89 @@
+buildscript {
+    configurations.classpath {
+        resolutionStrategy {
+            force "com.google.code.gson:gson:${gson_version}"
+        }
+    }
+    repositories {
+        maven { url = 'https://maven.fabricmc.net/' }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "net.fabricmc:fabric-loom:${loom_version}"
+        classpath "com.google.code.gson:gson:${gson_version}"
+    }
+}
+
+apply plugin: 'fabric-loom'
+apply plugin: 'maven-publish'
+
+version = mod_version
+group = maven_group
+
+base {
+    archivesName = archives_base_name
+}
+
+buildDir = file("${System.getProperty('user.home')}\\Documents\\Codex\\the-watcher-fabric-build")
+def projectReleaseDir = file("${projectDir}\\dist")
+
+repositories {
+    maven { url = 'https://maven.fabricmc.net/' }
+    mavenCentral()
+}
+
+loom {
+    splitEnvironmentSourceSets()
+    mixin {
+        useLegacyMixinAp = true
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    withSourcesJar()
+}
+
+processResources {
+    var replaceProperties = [
+        version           : version,
+        mod_id            : mod_id,
+        mod_name          : mod_name,
+        mod_author        : mod_author,
+        mod_description   : mod_description,
+        loader_version    : loader_version,
+        minecraft_version : minecraft_version
+    ]
+
+    inputs.properties replaceProperties
+    filesMatching('fabric.mod.json') {
+        expand replaceProperties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 17
+    it.options.encoding = 'UTF-8'
+}
+
+tasks.register('copyReleaseJar', Copy) {
+    dependsOn tasks.named('build')
+    from tasks.named('remapJar').flatMap { it.archiveFile }
+    into projectReleaseDir
+    rename { String _ -> "the-watcher-${project.version}-fabric.jar" }
+}

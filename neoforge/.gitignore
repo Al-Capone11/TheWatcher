@@ -1,0 +1,10 @@
+.gradle/
+.gradle-home/
+build/
+workbuild/
+run/
+dist/
+*.log
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
