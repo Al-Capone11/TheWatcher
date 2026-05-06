@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 1,
   "id": "${mod_id}",
   "version": "${version}",
@@ -13,14 +13,14 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.josem.echoofthevoid.EchoOfTheVoidMod"
+      "com.josem.thewatcher.TheWatcherMod"
     ],
     "client": [
-      "com.josem.echoofthevoid.client.WatcherFabricClient"
+      "com.josem.thewatcher.client.TheWatcherFabricClient"
     ]
   },
   "mixins": [
-    "echoofthevoid.mixins.json"
+    "thewatcher.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
@@ -29,3 +29,6 @@
     "fabric-api": "*"
   }
 }
+
+
+

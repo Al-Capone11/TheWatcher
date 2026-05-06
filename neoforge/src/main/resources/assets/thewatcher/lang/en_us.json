@@ -1,0 +1,8 @@
+﻿{
+  "itemGroup.thewatcher": "The Watcher",
+  "entity.thewatcher.thewatcherentity": "The Watcher",
+  "screen.thewatcher.reconnecting": "Connection lost",
+  "screen.thewatcher.reconnecting.detail": "Internal Exception: java.io.IOException: Reality desynced"
+}
+
+

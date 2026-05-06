@@ -1,0 +1,13 @@
+﻿{
+  "required": true,
+  "package": "com.josem.thewatcher.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "EntityPersistentDataMixin",
+    "LivingEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
+
