@@ -1,4 +1,4 @@
-ackage com.josem.thewatcher.client;
+ckage com.josem.thewatcher.client;
 
 import com.josem.thewatcher.TheWatcherMod;
 import net.minecraft.client.Minecraft;
