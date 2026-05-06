@@ -11,8 +11,9 @@ base {
     archivesName = 'the-watcher'
 }
 
-buildDir = file("${System.getProperty('user.home')}\\Documents\\Codex\\the-watcher-neoforge-build")
-def projectReleaseDir = file("${projectDir}\\dist")
+// Use Gradle default neoforge/build/ directory
+// Place the final jar in the root dist/ directory
+def projectReleaseDir = file("${projectDir.parentFile}/dist")
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -66,9 +67,7 @@ processResources {
     }
 }
 
-tasks.register('copyReleaseJar', Copy) {
-    dependsOn tasks.named('build')
-    from tasks.named('jar').flatMap { it.archiveFile }
-    into projectReleaseDir
-    rename { String _ -> "the-watcher-${project.version}-neoforge.jar" }
+jar {
+    archiveClassifier = 'neoforge'
+    destinationDirectory = file("${projectDir.parentFile}/dist")
 }

@@ -12,8 +12,8 @@ base {
     archivesName = "the-watcher"
 }
 
-buildDir = file("${System.getProperty('user.home')}\\Documents\\Codex\\the-watcher-build")
-def projectReleaseDir = file("${projectDir}\\dist")
+// Use Gradle default build/ directory for this project
+def projectReleaseDir = file("${rootDir}/dist")
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -79,29 +79,31 @@ processResources {
     }
 }
 
-tasks.register('copyReleaseJar', Copy) {
-    dependsOn tasks.named('build')
-    from tasks.named('jar').flatMap { it.archiveFile }
-    into projectReleaseDir
-    rename { String _ -> "the-watcher-${project.version}-forge.jar" }
-}
 
+// Build Fabric and place the release jar in the root dist/ directory
 tasks.register('buildFabric', GradleBuild) {
     group = 'build'
-    description = 'Runs Gradle build in fabric/'
+    description = 'Compila Fabric y copia el JAR a dist/'
     dir = file("${rootDir}/fabric")
     tasks = ['build']
 }
 
+// Build NeoForge and place the release jar in the root dist/ directory
 tasks.register('buildNeoForge', GradleBuild) {
     group = 'build'
-    description = 'Runs Gradle build in neoforge/'
+    description = 'Compila NeoForge y copia el JAR a dist/'
     dir = file("${rootDir}/neoforge")
     tasks = ['build']
 }
 
-tasks.register('buildAllLoaders') {
+// Build all loaders and place release jars in dist/
+tasks.register('releaseAll') {
     group = 'build'
-    description = 'Builds Forge (this project), Fabric, and NeoForge'
+    description = 'Compila Forge, Fabric y NeoForge; copia los 3 JARs a dist/'
     dependsOn 'build', 'buildFabric', 'buildNeoForge'
+}
+
+jar {
+    archiveClassifier = 'forge'
+    destinationDirectory = file("${rootDir}/dist")
 }

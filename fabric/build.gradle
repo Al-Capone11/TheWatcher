@@ -25,8 +25,9 @@ base {
     archivesName = archives_base_name
 }
 
-buildDir = file("${System.getProperty('user.home')}\\Documents\\Codex\\the-watcher-fabric-build")
-def projectReleaseDir = file("${projectDir}\\dist")
+// Use Gradle default fabric/build/ directory
+// Place the final jar in the root dist/ directory
+def projectReleaseDir = file("${projectDir.parentFile}/dist")
 
 repositories {
     maven { url = 'https://maven.fabricmc.net/' }
@@ -81,9 +82,7 @@ tasks.withType(JavaCompile).configureEach {
     it.options.encoding = 'UTF-8'
 }
 
-tasks.register('copyReleaseJar', Copy) {
-    dependsOn tasks.named('build')
-    from tasks.named('remapJar').flatMap { it.archiveFile }
-    into projectReleaseDir
-    rename { String _ -> "the-watcher-${project.version}-fabric.jar" }
+tasks.named('remapJar') {
+    archiveClassifier = 'fabric'
+    destinationDirectory = file("${projectDir.parentFile}/dist")
 }

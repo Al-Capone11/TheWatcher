@@ -11,7 +11,7 @@ logoFile = "logo.png"
 description = '''${mod_description}'''
 
 [[dependencies.${mod_id}]]
-modId = "neoforge"
+modId = "forge"
 mandatory = true
 versionRange = "${neoforge_version_range}"
 ordering = "NONE"
