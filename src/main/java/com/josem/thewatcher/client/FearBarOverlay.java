@@ -1,4 +1,4 @@
-kage com.josem.thewatcher.client;
+package com.josem.thewatcher.client;
 
 import com.josem.thewatcher.TheWatcherMod;
 import net.minecraft.client.Minecraft;
