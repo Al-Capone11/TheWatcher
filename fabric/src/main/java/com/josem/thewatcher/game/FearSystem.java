@@ -105,8 +105,7 @@ public final class FearSystem {
         });
     }
 
-    public static void onComfortFoodConsumed(ServerPlayer player) {
-        ItemStack stack = player.getUseItem();
+    public static void onComfortFoodConsumed(ServerPlayer player, ItemStack stack) {
         if (stack.is(Items.BREAD) || stack.is(Items.MUSHROOM_STEW) || stack.is(Items.RABBIT_STEW) || stack.is(Items.BEETROOT_SOUP)) {
             setFear(player, Mth.clamp(getFear(player) - 12, 0, 100));
         }
@@ -494,4 +493,3 @@ public final class FearSystem {
         return 1;
     }
 }
-
