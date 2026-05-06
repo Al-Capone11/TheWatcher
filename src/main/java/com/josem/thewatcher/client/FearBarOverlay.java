@@ -24,7 +24,7 @@ public final class FearBarOverlay {
         int innerWidth = 80;
         int filled = Math.max(0, Math.min(innerWidth, Math.round(innerWidth * (fear / 100.0F))));
         int x = width / 2 + 8;
-        int y = height - 46;
+        int y = height - 52;
 
         graphics.fill(x, y, x + frameWidth, y + 8, 0xFF211A22);
         graphics.fill(x + 1, y + 1, x + frameWidth - 1, y + 7, 0xFF4A4350);
