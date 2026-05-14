@@ -72,7 +72,7 @@ processResources {
     ]
 
     inputs.properties replaceProperties
-    filesMatching('fabric.mod.json') {
+    filesMatching(['fabric.mod.json', 'pack.mcmeta']) {
         expand replaceProperties
     }
 }

@@ -1,4 +1,4 @@
-﻿package com.josem.thewatcher.entity;
+package com.josem.thewatcher.entity;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.damagesource.DamageSource;

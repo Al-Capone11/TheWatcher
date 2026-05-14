@@ -1,4 +1,4 @@
-﻿package com.josem.thewatcher.game;
+package com.josem.thewatcher.game;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.josem.thewatcher.entity.ModEntities;

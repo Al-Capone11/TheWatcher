@@ -1,4 +1,4 @@
-﻿package com.josem.thewatcher.mixin;
+package com.josem.thewatcher.mixin;
 
 import com.josem.thewatcher.game.FearSystem;
 import net.minecraft.server.level.ServerPlayer;

@@ -1,4 +1,4 @@
-﻿package com.josem.thewatcher.client;
+package com.josem.thewatcher.client;
 
 import com.josem.thewatcher.entity.TheWatcherEntity;
 import com.mojang.blaze3d.vertex.PoseStack;

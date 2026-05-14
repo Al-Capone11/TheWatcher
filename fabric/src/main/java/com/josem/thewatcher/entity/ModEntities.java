@@ -1,4 +1,4 @@
-﻿package com.josem.thewatcher.entity;
+package com.josem.thewatcher.entity;
 
 import com.josem.thewatcher.TheWatcherMod;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;

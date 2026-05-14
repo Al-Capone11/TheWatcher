@@ -1,4 +1,4 @@
-﻿package com.josem.thewatcher;
+package com.josem.thewatcher;
 
 import com.josem.thewatcher.entity.ModEntities;
 import com.josem.thewatcher.game.FearSystem;

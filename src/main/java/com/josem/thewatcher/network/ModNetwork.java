@@ -1,4 +1,4 @@
-﻿package com.josem.thewatcher.network;
+package com.josem.thewatcher.network;
 
 import com.josem.thewatcher.TheWatcherMod;
 import net.minecraft.resources.ResourceLocation;

@@ -1,4 +1,4 @@
-﻿package com.josem.thewatcher;
+package com.josem.thewatcher;
 
 import com.josem.thewatcher.client.ModClientEvents;
 import com.josem.thewatcher.entity.ModEntities;

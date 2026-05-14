@@ -8,3 +8,4 @@ dist/
 *.class
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
+gradle/gradle-daemon-jvm.properties
