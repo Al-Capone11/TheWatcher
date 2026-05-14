@@ -260,7 +260,9 @@ public final class FearSystem {
                 return;
             }
 
-            shadow.lookAt(player, 30.0F, 30.0F);
+            if (player.tickCount >= data.getInt(SHADOW_REVEAL_UNTIL)) {
+                shadow.lookAt(player, 30.0F, 30.0F);
+            }
 
             if (player.tickCount >= data.getInt(SHADOW_REVEAL_UNTIL) && isPlayerLookingAt(player, shadow)) {
                 despawnShadow(player, shadow, data);
@@ -313,7 +315,11 @@ public final class FearSystem {
 
     private static void forceSpawnAhead(ServerPlayer player, CompoundTag data) {
         TheWatcherEntity shadow = getShadow(player);
-        Vec3 ahead = player.position().add(player.getLookAngle().scale(2.5D));
+        BlockPos spawnPos = findClimaxSpawn(player);
+        if (spawnPos == null) {
+            return;
+        }
+
         if (shadow == null) {
             shadow = ModEntities.THE_WATCHER.create(player.level());
             if (shadow == null) {
@@ -323,7 +329,7 @@ public final class FearSystem {
             data.putUUID(SHADOW_ID, shadow.getUUID());
         }
 
-        shadow.moveTo(ahead.x, player.getY(), ahead.z, player.getYRot() + 180.0F, 0.0F);
+        shadow.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, player.getYRot() + 180.0F, 0.0F);
         data.putInt(SHADOW_MOVE, player.tickCount);
         data.putInt(SHADOW_REVEAL_UNTIL, player.tickCount + 60);
     }
@@ -406,6 +412,52 @@ public final class FearSystem {
             }
         }
         return null;
+    }
+
+    private static BlockPos findClimaxSpawn(ServerPlayer player) {
+        Vec3 view = player.getLookAngle().normalize();
+        Vec3 side = new Vec3(-view.z, 0.0D, view.x).normalize();
+        if (side.lengthSqr() < 1.0E-4D) {
+            Vec3 fallback = Vec3.directionFromRotation(0.0F, player.getYRot());
+            side = new Vec3(-fallback.z, 0.0D, fallback.x).normalize();
+            view = fallback;
+        }
+        double sideScale = 9.0D;
+        double forwardScale = 2.0D;
+        boolean rightSide = player.getRandom().nextBoolean();
+
+        for (double distance : new double[] {sideScale, sideScale + 2.0D, sideScale - 2.0D}) {
+            Vec3 offset = side.scale(rightSide ? distance : -distance).add(view.scale(forwardScale));
+            BlockPos spawnPos = findClimaxSpawnNear(player, BlockPos.containing(player.position().add(offset)));
+            if (spawnPos != null) {
+                return spawnPos;
+            }
+
+            Vec3 oppositeOffset = side.scale(rightSide ? -distance : distance).add(view.scale(forwardScale));
+            spawnPos = findClimaxSpawnNear(player, BlockPos.containing(player.position().add(oppositeOffset)));
+            if (spawnPos != null) {
+                return spawnPos;
+            }
+        }
+
+        return findShadowSpawn(player, BlockPos.containing(player.position().add(side.scale(rightSide ? sideScale : -sideScale))));
+    }
+
+    private static BlockPos findClimaxSpawnNear(ServerPlayer player, BlockPos preferred) {
+        for (int dy = -2; dy <= 2; dy++) {
+            BlockPos candidate = preferred.offset(0, dy, 0);
+            if (canSpawnClimaxAt(player, candidate)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private static boolean canSpawnClimaxAt(ServerPlayer player, BlockPos pos) {
+        BlockState feet = player.level().getBlockState(pos);
+        BlockState head = player.level().getBlockState(pos.above());
+        BlockState below = player.level().getBlockState(pos.below());
+        return feet.canBeReplaced() && head.canBeReplaced() && !below.canBeReplaced();
     }
 
     private static boolean canSpawnShadowAt(ServerPlayer player, BlockPos pos) {
