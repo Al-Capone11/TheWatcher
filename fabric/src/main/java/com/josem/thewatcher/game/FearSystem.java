@@ -3,7 +3,7 @@ package com.josem.thewatcher.game;
 import com.mojang.brigadier.CommandDispatcher;
 import com.josem.thewatcher.entity.ModEntities;
 import com.josem.thewatcher.entity.TheWatcherEntity;
-import com.josem.thewatcher.mixin.EntityPersistentDataHolder;
+import com.josem.thewatcher.bridge.EntityPersistentDataHolder;
 import com.josem.thewatcher.network.ModNetworkIds;
 import java.util.List;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;

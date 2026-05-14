@@ -1,5 +1,6 @@
 package com.josem.thewatcher.mixin;
 
+import com.josem.thewatcher.bridge.EntityPersistentDataHolder;
 import java.util.ArrayList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;

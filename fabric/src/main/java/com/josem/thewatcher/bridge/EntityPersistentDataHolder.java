@@ -1,4 +1,4 @@
-package com.josem.thewatcher.mixin;
+package com.josem.thewatcher.bridge;
 
 import net.minecraft.nbt.CompoundTag;
 
