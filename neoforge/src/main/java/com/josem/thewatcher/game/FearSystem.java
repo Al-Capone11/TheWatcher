@@ -58,6 +58,7 @@ public final class FearSystem {
     private static final String SHADOW_ID = "EchoShadowId";
     private static final String SHADOW_COOLDOWN = "EchoShadowCooldown";
     private static final String SHADOW_MOVE = "EchoShadowMove";
+    private static final String SHADOW_REVEAL_UNTIL = "EchoShadowRevealUntil";
     private static final String SHADOW_SPAWN_X = "EchoShadowSpawnX";
     private static final String SHADOW_SPAWN_Y = "EchoShadowSpawnY";
     private static final String SHADOW_SPAWN_Z = "EchoShadowSpawnZ";
@@ -287,7 +288,7 @@ public final class FearSystem {
 
             shadow.lookAt(player, 30.0F, 30.0F);
 
-            if (isPlayerLookingAt(player, shadow)) {
+            if (player.tickCount >= data.getInt(SHADOW_REVEAL_UNTIL) && isPlayerLookingAt(player, shadow)) {
                 despawnShadow(player, shadow, data);
                 return;
             }
@@ -349,6 +350,8 @@ public final class FearSystem {
         }
 
         shadow.moveTo(ahead.x, player.getY(), ahead.z, player.getYRot() + 180.0F, 0.0F);
+        data.putInt(SHADOW_MOVE, player.tickCount);
+        data.putInt(SHADOW_REVEAL_UNTIL, player.tickCount + 60);
     }
 
     private static void spawnShadow(ServerPlayer player, CompoundTag data) {
@@ -394,6 +397,7 @@ public final class FearSystem {
 
     private static void clearShadowData(CompoundTag data) {
         data.remove(SHADOW_ID);
+        data.remove(SHADOW_REVEAL_UNTIL);
         data.putInt(SHADOW_COOLDOWN, 120);
     }
 
