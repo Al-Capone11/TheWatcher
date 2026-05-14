@@ -58,7 +58,6 @@ public final class FearSystem {
     private static final String SHADOW_ID = "EchoShadowId";
     private static final String SHADOW_COOLDOWN = "EchoShadowCooldown";
     private static final String SHADOW_MOVE = "EchoShadowMove";
-    private static final String SHADOW_REVEAL_UNTIL = "EchoShadowRevealUntil";
     private static final String SHADOW_SPAWN_X = "EchoShadowSpawnX";
     private static final String SHADOW_SPAWN_Y = "EchoShadowSpawnY";
     private static final String SHADOW_SPAWN_Z = "EchoShadowSpawnZ";
@@ -286,11 +285,9 @@ public final class FearSystem {
                 return;
             }
 
-            if (player.tickCount >= data.getInt(SHADOW_REVEAL_UNTIL)) {
-                shadow.lookAt(player, 30.0F, 30.0F);
-            }
+            shadow.lookAt(player, 30.0F, 30.0F);
 
-            if (player.tickCount >= data.getInt(SHADOW_REVEAL_UNTIL) && isPlayerLookingAt(player, shadow)) {
+            if (isPlayerLookingAt(player, shadow)) {
                 despawnShadow(player, shadow, data);
                 return;
             }
@@ -341,11 +338,7 @@ public final class FearSystem {
 
     private static void forceSpawnAhead(ServerPlayer player, CompoundTag data) {
         TheWatcherEntity shadow = getShadow(player);
-        BlockPos spawnPos = findClimaxSpawn(player);
-        if (spawnPos == null) {
-            return;
-        }
-
+        Vec3 ahead = player.position().add(player.getLookAngle().scale(2.5D));
         if (shadow == null) {
             shadow = ModEntities.THE_WATCHER.get().create(player.level());
             if (shadow == null) {
@@ -355,9 +348,7 @@ public final class FearSystem {
             data.putUUID(SHADOW_ID, shadow.getUUID());
         }
 
-        shadow.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, player.getYRot() + 180.0F, 0.0F);
-        data.putInt(SHADOW_MOVE, player.tickCount);
-        data.putInt(SHADOW_REVEAL_UNTIL, player.tickCount + 60);
+        shadow.moveTo(ahead.x, player.getY(), ahead.z, player.getYRot() + 180.0F, 0.0F);
     }
 
     private static void spawnShadow(ServerPlayer player, CompoundTag data) {
@@ -403,7 +394,6 @@ public final class FearSystem {
 
     private static void clearShadowData(CompoundTag data) {
         data.remove(SHADOW_ID);
-        data.remove(SHADOW_REVEAL_UNTIL);
         data.putInt(SHADOW_COOLDOWN, 120);
     }
 
@@ -438,52 +428,6 @@ public final class FearSystem {
             }
         }
         return null;
-    }
-
-    private static BlockPos findClimaxSpawn(ServerPlayer player) {
-        Vec3 view = player.getLookAngle().normalize();
-        Vec3 side = new Vec3(-view.z, 0.0D, view.x).normalize();
-        if (side.lengthSqr() < 1.0E-4D) {
-            Vec3 fallback = Vec3.directionFromRotation(0.0F, player.getYRot());
-            side = new Vec3(-fallback.z, 0.0D, fallback.x).normalize();
-            view = fallback;
-        }
-        double sideScale = 9.0D;
-        double forwardScale = 2.0D;
-        boolean rightSide = player.getRandom().nextBoolean();
-
-        for (double distance : new double[] {sideScale, sideScale + 2.0D, sideScale - 2.0D}) {
-            Vec3 offset = side.scale(rightSide ? distance : -distance).add(view.scale(forwardScale));
-            BlockPos spawnPos = findClimaxSpawnNear(player, BlockPos.containing(player.position().add(offset)));
-            if (spawnPos != null) {
-                return spawnPos;
-            }
-
-            Vec3 oppositeOffset = side.scale(rightSide ? -distance : distance).add(view.scale(forwardScale));
-            spawnPos = findClimaxSpawnNear(player, BlockPos.containing(player.position().add(oppositeOffset)));
-            if (spawnPos != null) {
-                return spawnPos;
-            }
-        }
-
-        return findShadowSpawn(player, BlockPos.containing(player.position().add(side.scale(rightSide ? sideScale : -sideScale))));
-    }
-
-    private static BlockPos findClimaxSpawnNear(ServerPlayer player, BlockPos preferred) {
-        for (int dy = -2; dy <= 2; dy++) {
-            BlockPos candidate = preferred.offset(0, dy, 0);
-            if (canSpawnClimaxAt(player, candidate)) {
-                return candidate;
-            }
-        }
-        return null;
-    }
-
-    private static boolean canSpawnClimaxAt(ServerPlayer player, BlockPos pos) {
-        BlockState feet = player.level().getBlockState(pos);
-        BlockState head = player.level().getBlockState(pos.above());
-        BlockState below = player.level().getBlockState(pos.below());
-        return feet.canBeReplaced() && head.canBeReplaced() && !below.canBeReplaced();
     }
 
     private static boolean canSpawnShadowAt(ServerPlayer player, BlockPos pos) {
