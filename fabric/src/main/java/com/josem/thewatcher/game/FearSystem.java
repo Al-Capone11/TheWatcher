@@ -25,8 +25,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.animal.Animal;
@@ -56,6 +54,7 @@ public final class FearSystem {
     private static final String SHADOW_ID = "EchoShadowId";
     private static final String SHADOW_COOLDOWN = "EchoShadowCooldown";
     private static final String SHADOW_MOVE = "EchoShadowMove";
+    private static final String SHADOW_CLIMAX = "EchoShadowClimax";
     private static final String SHADOW_SPAWN_X = "EchoShadowSpawnX";
     private static final String SHADOW_SPAWN_Y = "EchoShadowSpawnY";
     private static final String SHADOW_SPAWN_Z = "EchoShadowSpawnZ";
@@ -249,12 +248,13 @@ public final class FearSystem {
 
         if (shadow == null && fear >= 35 && player.level().getMaxLocalRawBrightness(player.blockPosition()) <= 7 && data.getInt(SHADOW_COOLDOWN) <= 0) {
             if (player.tickCount % 40 == 0 && player.getRandom().nextInt(Math.max(8, 34 - fear / 3)) == 0) {
-                spawnShadow(player, data);
+                spawnShadow(player, data, false);
             }
         }
 
         if (shadow != null) {
             if (!shadow.isAlive() || shadow.level() != player.level()) {
+                finishClimaxShadow(player, data);
                 clearShadowData(data);
                 return;
             }
@@ -290,12 +290,12 @@ public final class FearSystem {
         }
 
         data.putBoolean(CLIMAX_LOCK, true);
-        player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 60, 0));
-        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 3));
-        forceSpawnAhead(player, data);
-        player.level().playSound(null, player.blockPosition(), SoundEvents.AMBIENT_CAVE.value(), SoundSource.AMBIENT, 0.8F, 0.5F);
-        setFear(player, 0);
-        data.putInt(CLIMAX_COOLDOWN, 2400);
+        TheWatcherEntity shadow = getShadow(player);
+        if (shadow != null || spawnShadow(player, data, true)) {
+            data.putBoolean(SHADOW_CLIMAX, true);
+            player.level().playSound(null, player.blockPosition(), SoundEvents.AMBIENT_CAVE.value(), SoundSource.AMBIENT, 0.8F, 0.5F);
+            data.putInt(CLIMAX_COOLDOWN, 2400);
+        }
         data.putBoolean(CLIMAX_LOCK, false);
     }
 
@@ -310,25 +310,10 @@ public final class FearSystem {
         }
     }
 
-    private static void forceSpawnAhead(ServerPlayer player, CompoundTag data) {
-        TheWatcherEntity shadow = getShadow(player);
-        Vec3 ahead = player.position().add(player.getLookAngle().scale(2.5D));
-        if (shadow == null) {
-            shadow = ModEntities.THE_WATCHER.create(player.level());
-            if (shadow == null) {
-                return;
-            }
-            player.level().addFreshEntity(shadow);
-            data.putUUID(SHADOW_ID, shadow.getUUID());
-        }
-
-        shadow.moveTo(ahead.x, player.getY(), ahead.z, player.getYRot() + 180.0F, 0.0F);
-    }
-
-    private static void spawnShadow(ServerPlayer player, CompoundTag data) {
+    private static boolean spawnShadow(ServerPlayer player, CompoundTag data, boolean ignoreLight) {
         TheWatcherEntity shadow = ModEntities.THE_WATCHER.create(player.level());
         if (shadow == null) {
-            return;
+            return false;
         }
 
         Vec3 view = player.getLookAngle().normalize();
@@ -337,10 +322,10 @@ public final class FearSystem {
         double forwardScale = 1.5D + player.getRandom().nextDouble() * 1.5D;
         Vec3 offset = side.scale(player.getRandom().nextBoolean() ? sideScale : -sideScale).add(view.scale(forwardScale));
         BlockPos spawnBase = BlockPos.containing(player.position().add(offset));
-        BlockPos spawnPos = findShadowSpawn(player, spawnBase);
+        BlockPos spawnPos = findShadowSpawn(player, spawnBase, ignoreLight);
         if (spawnPos == null) {
             data.putInt(SHADOW_COOLDOWN, 80);
-            return;
+            return false;
         }
 
         shadow.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, player.getYRot() + 180.0F, 0.0F);
@@ -350,6 +335,7 @@ public final class FearSystem {
         data.putDouble(SHADOW_SPAWN_X, shadow.getX());
         data.putDouble(SHADOW_SPAWN_Y, shadow.getY());
         data.putDouble(SHADOW_SPAWN_Z, shadow.getZ());
+        return true;
     }
 
     private static void moveShadowCloser(ServerPlayer player, TheWatcherEntity shadow) {
@@ -363,12 +349,20 @@ public final class FearSystem {
             serverLevel.sendParticles(ParticleTypes.SQUID_INK, shadow.getX(), shadow.getY(0.6D), shadow.getZ(), 12, 0.25D, 0.6D, 0.25D, 0.02D);
         }
         shadow.discard();
+        finishClimaxShadow(player, data);
         clearShadowData(data);
     }
 
     private static void clearShadowData(CompoundTag data) {
         data.remove(SHADOW_ID);
+        data.remove(SHADOW_CLIMAX);
         data.putInt(SHADOW_COOLDOWN, 120);
+    }
+
+    private static void finishClimaxShadow(ServerPlayer player, CompoundTag data) {
+        if (data.getBoolean(SHADOW_CLIMAX)) {
+            setFear(player, 90);
+        }
     }
 
     private static TheWatcherEntity getShadow(ServerPlayer player) {
@@ -394,21 +388,21 @@ public final class FearSystem {
         return hit.getType() != HitResult.Type.BLOCK;
     }
 
-    private static BlockPos findShadowSpawn(ServerPlayer player, BlockPos preferred) {
+    private static BlockPos findShadowSpawn(ServerPlayer player, BlockPos preferred, boolean ignoreLight) {
         for (int dy = -2; dy <= 2; dy++) {
             BlockPos candidate = preferred.offset(0, dy, 0);
-            if (canSpawnShadowAt(player, candidate)) {
+            if (canSpawnShadowAt(player, candidate, ignoreLight)) {
                 return candidate;
             }
         }
         return null;
     }
 
-    private static boolean canSpawnShadowAt(ServerPlayer player, BlockPos pos) {
+    private static boolean canSpawnShadowAt(ServerPlayer player, BlockPos pos, boolean ignoreLight) {
         BlockState feet = player.level().getBlockState(pos);
         BlockState head = player.level().getBlockState(pos.above());
         BlockState below = player.level().getBlockState(pos.below());
-        return feet.canBeReplaced() && head.canBeReplaced() && !below.canBeReplaced() && player.level().getMaxLocalRawBrightness(pos) <= 7;
+        return feet.canBeReplaced() && head.canBeReplaced() && !below.canBeReplaced() && (ignoreLight || player.level().getMaxLocalRawBrightness(pos) <= 7);
     }
 
     private static boolean isNearLitCampfire(ServerPlayer player) {
