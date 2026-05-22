@@ -341,7 +341,10 @@ public final class FearSystem {
     private static void moveShadowCloser(ServerPlayer player, TheWatcherEntity shadow) {
         Vec3 toPlayer = player.position().subtract(shadow.position()).normalize();
         Vec3 moved = shadow.position().add(toPlayer.scale(2.0D));
-        shadow.moveTo(moved.x, shadow.getY(), moved.z, shadow.getYRot(), shadow.getXRot());
+        BlockPos movedPos = findShadowSpawn(player, BlockPos.containing(moved), true);
+        if (movedPos != null) {
+            shadow.moveTo(movedPos.getX() + 0.5D, movedPos.getY(), movedPos.getZ() + 0.5D, shadow.getYRot(), 0.0F);
+        }
     }
 
     private static void despawnShadow(ServerPlayer player, TheWatcherEntity shadow, CompoundTag data) {

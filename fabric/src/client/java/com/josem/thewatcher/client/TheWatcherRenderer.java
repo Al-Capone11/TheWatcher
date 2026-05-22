@@ -28,6 +28,8 @@ public final class TheWatcherRenderer extends LivingEntityRenderer<TheWatcherEnt
         poseStack.pushPose();
         poseStack.scale(1.1F, 1.1F, 1.1F);
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
+        poseStack.scale(-1.0F, -1.0F, 1.0F);
+        poseStack.translate(0.0D, -1.501D, 0.0D);
         this.model.attackTime = 0.0F;
         this.model.crouching = false;
         this.model.riding = false;
