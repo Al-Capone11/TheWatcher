@@ -13,8 +13,8 @@ base {
 }
 
 // Use Gradle default neoforge/build/ directory
-// Place the final jar in the root dist/ directory
-def projectReleaseDir = file("${projectDir.parentFile}/dist")
+// Place the final jar in dist/neoforge/
+def projectReleaseDir = file("${projectDir.parentFile}/dist/neoforge")
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -84,6 +84,6 @@ processResources {
 
 jar {
     archiveClassifier = 'neoforge'
-    destinationDirectory = file("${projectDir.parentFile}/dist")
+    destinationDirectory = projectReleaseDir
     finalizedBy 'reobfJar'
 }

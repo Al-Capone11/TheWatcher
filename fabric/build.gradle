@@ -26,8 +26,8 @@ base {
 }
 
 // Use Gradle default fabric/build/ directory
-// Place the final jar in the root dist/ directory
-def projectReleaseDir = file("${projectDir.parentFile}/dist")
+// Place the final jar in dist/fabric/
+def projectReleaseDir = file("${projectDir.parentFile}/dist/fabric")
 
 repositories {
     maven { url = 'https://maven.fabricmc.net/' }
@@ -84,5 +84,5 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.named('remapJar') {
     archiveClassifier = 'fabric'
-    destinationDirectory = file("${projectDir.parentFile}/dist")
+    destinationDirectory = projectReleaseDir
 }
