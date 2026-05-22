@@ -344,8 +344,8 @@ public final class FearSystem {
 
         Vec3 view = player.getLookAngle().normalize();
         Vec3 side = new Vec3(-view.z, 0.0D, view.x).normalize();
-        double sideScale = 11.5D + player.getRandom().nextDouble() * 3.5D;
-        double forwardScale = 1.5D + player.getRandom().nextDouble() * 1.5D;
+        double sideScale = 5.0D + player.getRandom().nextDouble() * 1.5D;
+        double forwardScale = 8.0D + player.getRandom().nextDouble() * 2.0D;
         Vec3 offset = side.scale(player.getRandom().nextBoolean() ? sideScale : -sideScale).add(view.scale(forwardScale));
         BlockPos spawnBase = BlockPos.containing(player.position().add(offset));
         BlockPos spawnPos = findShadowSpawn(player, spawnBase, ignoreLight);
