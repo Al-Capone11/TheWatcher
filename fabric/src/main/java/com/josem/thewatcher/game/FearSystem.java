@@ -246,7 +246,7 @@ public final class FearSystem {
         int fear = getFear(player);
         TheWatcherEntity shadow = getShadow(player);
 
-        if (shadow == null && fear >= 35 && player.level().getMaxLocalRawBrightness(player.blockPosition()) <= 7 && data.getInt(SHADOW_COOLDOWN) <= 0) {
+        if (shadow == null && fear >= 100 && player.level().getMaxLocalRawBrightness(player.blockPosition()) <= 7 && data.getInt(SHADOW_COOLDOWN) <= 0) {
             if (player.tickCount % 40 == 0 && player.getRandom().nextInt(Math.max(8, 34 - fear / 3)) == 0) {
                 spawnShadow(player, data, false);
             }
@@ -285,7 +285,7 @@ public final class FearSystem {
             return;
         }
 
-        if (fear < 90 || data.getBoolean(CLIMAX_LOCK)) {
+        if (fear < 100 || data.getBoolean(CLIMAX_LOCK)) {
             return;
         }
 
