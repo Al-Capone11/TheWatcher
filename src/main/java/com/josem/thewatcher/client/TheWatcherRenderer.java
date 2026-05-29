@@ -2,8 +2,6 @@ package com.josem.thewatcher.client;
 
 import com.josem.thewatcher.TheWatcherMod;
 import com.josem.thewatcher.entity.TheWatcherEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -23,12 +21,6 @@ public final class TheWatcherRenderer extends LivingEntityRenderer<TheWatcherEnt
     @Override
     protected boolean shouldShowName(TheWatcherEntity entity) {
         return false;
-    }
-
-    @Override
-    protected void setupRotations(TheWatcherEntity entity, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTicks) {
-        super.setupRotations(entity, poseStack, ageInTicks, rotationYaw, partialTicks);
-        poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
     }
 }
 
