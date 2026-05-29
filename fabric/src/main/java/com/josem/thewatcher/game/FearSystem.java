@@ -65,6 +65,7 @@ public final class FearSystem {
     private static final String CLIMAX_LOCK = "EchoClimaxLock";
     private static final String CLIMAX_COOLDOWN = "EchoClimaxCooldown";
     private static final String FEAR_BAR_VISIBLE = "EchoFearBarVisible";
+    private static final float MODEL_FRONT_YAW_OFFSET = -90.0F;
     private static final Component[] WHISPERS = new Component[] {
         Component.literal("Me ves?"),
         Component.literal("Detras"),
@@ -257,7 +258,7 @@ public final class FearSystem {
                 return;
             }
 
-            shadow.lookAt(player, 30.0F, 30.0F);
+            facePlayer(player, shadow);
 
             if (isPlayerLookingAt(player, shadow)) {
                 despawnShadow(player, shadow, data);
@@ -329,7 +330,8 @@ public final class FearSystem {
             return false;
         }
 
-        shadow.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, player.getYRot() + 180.0F, 0.0F);
+        shadow.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, yawToPlayer(player, spawnPos), 0.0F);
+        facePlayer(player, shadow);
         player.level().addFreshEntity(shadow);
         data.putUUID(SHADOW_ID, shadow.getUUID());
         data.putInt(SHADOW_MOVE, player.tickCount);
@@ -344,8 +346,23 @@ public final class FearSystem {
         Vec3 moved = shadow.position().add(toPlayer.scale(2.0D));
         BlockPos movedPos = findShadowSpawn(player, BlockPos.containing(moved), true);
         if (movedPos != null) {
-            shadow.moveTo(movedPos.getX() + 0.5D, movedPos.getY(), movedPos.getZ() + 0.5D, shadow.getYRot(), 0.0F);
+            shadow.moveTo(movedPos.getX() + 0.5D, movedPos.getY(), movedPos.getZ() + 0.5D, yawToPlayer(player, movedPos), 0.0F);
+            facePlayer(player, shadow);
         }
+    }
+
+    private static void facePlayer(ServerPlayer player, TheWatcherEntity shadow) {
+        float yaw = yawToPlayer(player, shadow.blockPosition());
+        shadow.setYRot(yaw);
+        shadow.yBodyRot = yaw;
+        shadow.yHeadRot = yaw;
+        shadow.setYHeadRot(yaw);
+    }
+
+    private static float yawToPlayer(ServerPlayer player, BlockPos from) {
+        double dx = player.getX() - (from.getX() + 0.5D);
+        double dz = player.getZ() - (from.getZ() + 0.5D);
+        return (float) Math.toDegrees(Mth.atan2(dz, dx)) - 90.0F + MODEL_FRONT_YAW_OFFSET;
     }
 
     private static void despawnShadow(ServerPlayer player, TheWatcherEntity shadow, CompoundTag data) {
