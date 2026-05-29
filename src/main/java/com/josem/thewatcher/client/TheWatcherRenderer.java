@@ -18,5 +18,9 @@ public final class TheWatcherRenderer extends LivingEntityRenderer<TheWatcherEnt
         return SKIN;
     }
 
+    @Override
+    protected boolean shouldShowName(TheWatcherEntity entity) {
+        return false;
+    }
 }
 

@@ -378,6 +378,7 @@ public final class FearSystem {
             serverLevel.sendParticles(ParticleTypes.SQUID_INK, shadow.getX(), shadow.getY(0.6D), shadow.getZ(), 12, 0.25D, 0.6D, 0.25D, 0.02D);
         }
         shadow.discard();
+        setFear(player, 90);
         finishClimaxShadow(player, data);
         clearShadowData(data);
     }
@@ -428,13 +429,24 @@ public final class FearSystem {
     }
 
     private static boolean canSpawnShadowAt(ServerPlayer player, BlockPos pos, boolean ignoreLight) {
-        BlockState feet = player.level().getBlockState(pos);
-        BlockState head = player.level().getBlockState(pos.above());
         BlockState below = player.level().getBlockState(pos.below());
-        return feet.canBeReplaced()
-            && head.canBeReplaced()
-            && !below.canBeReplaced()
+        return !below.getCollisionShape(player.level(), pos.below()).isEmpty()
+            && hasClearWatcherSpace(player, pos)
             && (ignoreLight || player.level().getMaxLocalRawBrightness(pos) <= 7);
+    }
+
+    private static boolean hasClearWatcherSpace(ServerPlayer player, BlockPos pos) {
+        for (int x = -1; x <= 1; x++) {
+            for (int y = 0; y <= 2; y++) {
+                for (int z = -1; z <= 1; z++) {
+                    BlockPos check = pos.offset(x, y, z);
+                    if (!player.level().getBlockState(check).getCollisionShape(player.level(), check).isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     private static boolean isNearLitCampfire(ServerPlayer player) {

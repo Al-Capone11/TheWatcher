@@ -43,12 +43,12 @@ public final class TheWatcherModel<T extends TheWatcherEntity> extends EntityMod
         rightForearm.addOrReplaceChild("right_lower_arm", CubeListBuilder.create().texOffs(0, 35).addBox(-0.5F, 0.0F, -0.5F, 1.0F, 9.0F, 1.0F), PartPose.ZERO);
 
         PartDefinition leftThigh = watcher.addOrReplaceChild("left_thigh", CubeListBuilder.create(), PartPose.offsetAndRotation(2.0F, -18.0F, -1.0F, -25.0F * DEG_TO_RAD, 0.0F, 0.0F));
-        leftThigh.addOrReplaceChild("left_upper_leg", CubeListBuilder.create().texOffs(31, 0).addBox(-1.0F, -9.0F, -1.0F, 2.0F, 10.0F, 3.0F), PartPose.ZERO);
+        leftThigh.addOrReplaceChild("left_upper_leg", CubeListBuilder.create().texOffs(31, 0).addBox(-1.0F, -1.0F, -1.0F, 2.0F, 10.0F, 3.0F), PartPose.ZERO);
         PartDefinition leftCalf = watcher.addOrReplaceChild("left_calf", CubeListBuilder.create(), PartPose.offsetAndRotation(2.0F, -9.0F, 0.0F, 50.0F * DEG_TO_RAD, 0.0F, 0.0F));
         leftCalf.addOrReplaceChild("left_lower_leg", CubeListBuilder.create().texOffs(4, 35).addBox(-0.5F, 0.0F, -0.5F, 1.0F, 10.0F, 1.0F), PartPose.ZERO);
 
         PartDefinition rightThigh = watcher.addOrReplaceChild("right_thigh", CubeListBuilder.create(), PartPose.offsetAndRotation(-2.0F, -18.0F, -1.0F, -25.0F * DEG_TO_RAD, 0.0F, 0.0F));
-        rightThigh.addOrReplaceChild("right_upper_leg", CubeListBuilder.create().texOffs(31, 10).addBox(-1.0F, -9.0F, -1.0F, 2.0F, 10.0F, 3.0F), PartPose.ZERO);
+        rightThigh.addOrReplaceChild("right_upper_leg", CubeListBuilder.create().texOffs(31, 10).addBox(-1.0F, -1.0F, -1.0F, 2.0F, 10.0F, 3.0F), PartPose.ZERO);
         PartDefinition rightCalf = watcher.addOrReplaceChild("right_calf", CubeListBuilder.create(), PartPose.offsetAndRotation(-2.0F, -9.0F, 0.0F, 50.0F * DEG_TO_RAD, 0.0F, 0.0F));
         rightCalf.addOrReplaceChild("right_lower_leg", CubeListBuilder.create().texOffs(8, 35).addBox(-0.5F, 0.0F, -0.5F, 1.0F, 10.0F, 1.0F), PartPose.ZERO);
 
