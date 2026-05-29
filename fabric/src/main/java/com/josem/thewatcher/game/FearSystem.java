@@ -65,7 +65,6 @@ public final class FearSystem {
     private static final String CLIMAX_LOCK = "EchoClimaxLock";
     private static final String CLIMAX_COOLDOWN = "EchoClimaxCooldown";
     private static final String FEAR_BAR_VISIBLE = "EchoFearBarVisible";
-    private static final float MODEL_FRONT_YAW_OFFSET = -90.0F;
     private static final Component[] WHISPERS = new Component[] {
         Component.literal("Me ves?"),
         Component.literal("Detras"),
@@ -356,13 +355,16 @@ public final class FearSystem {
         shadow.setYRot(yaw);
         shadow.yBodyRot = yaw;
         shadow.yHeadRot = yaw;
+        shadow.yRotO = yaw;
+        shadow.yBodyRotO = yaw;
+        shadow.yHeadRotO = yaw;
         shadow.setYHeadRot(yaw);
     }
 
     private static float yawToPlayer(ServerPlayer player, BlockPos from) {
         double dx = player.getX() - (from.getX() + 0.5D);
         double dz = player.getZ() - (from.getZ() + 0.5D);
-        return (float) Math.toDegrees(Mth.atan2(dz, dx)) - 90.0F + MODEL_FRONT_YAW_OFFSET;
+        return (float) Math.toDegrees(Mth.atan2(dz, dx)) - 90.0F;
     }
 
     private static void despawnShadow(ServerPlayer player, TheWatcherEntity shadow, CompoundTag data) {

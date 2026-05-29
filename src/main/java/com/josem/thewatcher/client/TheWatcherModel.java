@@ -22,7 +22,7 @@ public final class TheWatcherModel<T extends TheWatcherEntity> extends EntityMod
     public static LayerDefinition createBodyLayer() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition root = mesh.getRoot();
-        PartDefinition watcher = root.addOrReplaceChild("watcher", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 0.0F));
+        PartDefinition watcher = root.addOrReplaceChild("watcher", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, 24.0F, 0.0F, 0.0F, 90.0F * DEG_TO_RAD, 0.0F));
         watcher.addOrReplaceChild("neck", CubeListBuilder.create().texOffs(18, 25).addBox(-2.5F, -31.0F, -2.5F, 5.0F, 1.0F, 5.0F), PartPose.ZERO);
         watcher.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -39.0F, -4.0F, 8.0F, 8.0F, 8.0F), PartPose.ZERO);
         watcher.addOrReplaceChild("chest", CubeListBuilder.create().texOffs(0, 15).addBox(-6.0F, -30.0F, -3.0F, 12.0F, 5.0F, 5.0F), PartPose.ZERO);
