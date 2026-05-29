@@ -12,6 +12,7 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
 public final class TheWatcherModel<T extends TheWatcherEntity> extends EntityModel<T> {
+    private static final float DEG_TO_RAD = (float) Math.PI / 180.0F;
     private final ModelPart root;
 
     public TheWatcherModel(ModelPart root) {
@@ -30,10 +31,10 @@ public final class TheWatcherModel<T extends TheWatcherEntity> extends EntityMod
         watcher.addOrReplaceChild("left_lower_arm", CubeListBuilder.create().texOffs(34, 31).addBox(6.5F, -21.0F, -0.5F, 1.0F, 9.0F, 1.0F), PartPose.ZERO);
         watcher.addOrReplaceChild("right_upper_arm", CubeListBuilder.create().texOffs(26, 31).addBox(-8.0F, -30.0F, -1.0F, 2.0F, 9.0F, 2.0F), PartPose.ZERO);
         watcher.addOrReplaceChild("right_lower_arm", CubeListBuilder.create().texOffs(0, 35).addBox(-7.5F, -21.0F, -0.5F, 1.0F, 9.0F, 1.0F), PartPose.ZERO);
-        watcher.addOrReplaceChild("left_upper_leg", CubeListBuilder.create().texOffs(31, 0).addBox(1.0F, -19.0F, -1.0F, 2.0F, 10.0F, 3.0F), PartPose.ZERO);
-        watcher.addOrReplaceChild("left_lower_leg", CubeListBuilder.create().texOffs(4, 35).addBox(1.5F, -9.0F, -2.5F, 1.0F, 10.0F, 1.0F), PartPose.ZERO);
-        watcher.addOrReplaceChild("right_upper_leg", CubeListBuilder.create().texOffs(31, 10).addBox(-3.0F, -19.0F, -1.0F, 2.0F, 10.0F, 3.0F), PartPose.ZERO);
-        watcher.addOrReplaceChild("right_lower_leg", CubeListBuilder.create().texOffs(8, 35).addBox(-2.5F, -9.0F, -2.5F, 1.0F, 10.0F, 1.0F), PartPose.ZERO);
+        PartDefinition leftUpperLeg = watcher.addOrReplaceChild("left_upper_leg", CubeListBuilder.create().texOffs(31, 0).addBox(0.0F, -1.0F, -2.0F, 2.0F, 10.0F, 3.0F), PartPose.offsetAndRotation(1.0F, -18.0F, 0.0F, -25.0F * DEG_TO_RAD, 0.0F, 0.0F));
+        leftUpperLeg.addOrReplaceChild("left_lower_leg", CubeListBuilder.create().texOffs(4, 35).addBox(0.5F, 0.0F, -0.5F, 1.0F, 10.0F, 1.0F), PartPose.offsetAndRotation(0.0F, 9.0F, 0.0F, 50.0F * DEG_TO_RAD, 0.0F, 0.0F));
+        PartDefinition rightUpperLeg = watcher.addOrReplaceChild("right_upper_leg", CubeListBuilder.create().texOffs(31, 10).addBox(-2.0F, -1.0F, -2.0F, 2.0F, 10.0F, 3.0F), PartPose.offsetAndRotation(-1.0F, -18.0F, 0.0F, -25.0F * DEG_TO_RAD, 0.0F, 0.0F));
+        rightUpperLeg.addOrReplaceChild("right_lower_leg", CubeListBuilder.create().texOffs(8, 35).addBox(-1.5F, 0.0F, -0.5F, 1.0F, 10.0F, 1.0F), PartPose.offsetAndRotation(0.0F, 9.0F, 0.0F, 50.0F * DEG_TO_RAD, 0.0F, 0.0F));
 
         return LayerDefinition.create(mesh, 64, 64);
     }
