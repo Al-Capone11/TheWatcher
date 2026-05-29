@@ -246,10 +246,8 @@ public final class FearSystem {
         int fear = getFear(player);
         TheWatcherEntity shadow = getShadow(player);
 
-        if (shadow == null && fear >= 100 && player.level().getMaxLocalRawBrightness(player.blockPosition()) <= 7 && data.getInt(SHADOW_COOLDOWN) <= 0) {
-            if (player.tickCount % 40 == 0 && player.getRandom().nextInt(Math.max(8, 34 - fear / 3)) == 0) {
-                spawnShadow(player, data, false);
-            }
+        if (shadow == null && fear >= 100 && data.getInt(SHADOW_COOLDOWN) <= 0 && player.tickCount % 10 == 0) {
+            spawnShadow(player, data, false);
         }
 
         if (shadow != null) {
@@ -318,13 +316,16 @@ public final class FearSystem {
 
         Vec3 view = player.getLookAngle().normalize();
         Vec3 side = new Vec3(-view.z, 0.0D, view.x).normalize();
-        double sideScale = 5.0D + player.getRandom().nextDouble() * 1.5D;
-        double forwardScale = 8.0D + player.getRandom().nextDouble() * 2.0D;
-        Vec3 offset = side.scale(player.getRandom().nextBoolean() ? sideScale : -sideScale).add(view.scale(forwardScale));
-        BlockPos spawnBase = BlockPos.containing(player.position().add(offset));
-        BlockPos spawnPos = findShadowSpawn(player, spawnBase, ignoreLight);
+        BlockPos spawnPos = null;
+        for (int attempt = 0; attempt < 12 && spawnPos == null; attempt++) {
+            double sideScale = 3.0D + player.getRandom().nextDouble() * 2.0D;
+            double forwardScale = 6.0D + player.getRandom().nextDouble() * 3.0D;
+            double sideSign = (attempt & 1) == 0 ? 1.0D : -1.0D;
+            Vec3 offset = side.scale(sideScale * sideSign).add(view.scale(forwardScale));
+            spawnPos = findShadowSpawn(player, BlockPos.containing(player.position().add(offset)), ignoreLight);
+        }
         if (spawnPos == null) {
-            data.putInt(SHADOW_COOLDOWN, 80);
+            data.putInt(SHADOW_COOLDOWN, 20);
             return false;
         }
 
@@ -381,19 +382,18 @@ public final class FearSystem {
 
     private static boolean isPlayerLookingAt(Player player, Entity entity) {
         Vec3 start = player.getEyePosition();
-        Vec3 target = entity.getBoundingBox().getCenter();
-        Vec3 toEntity = target.subtract(start).normalize();
-        double dot = player.getLookAngle().normalize().dot(toEntity);
-        if (dot < 0.94D) {
+        Vec3 end = start.add(player.getLookAngle().normalize().scale(64.0D));
+        if (entity.getBoundingBox().inflate(0.1D).clip(start, end).isEmpty()) {
             return false;
         }
 
+        Vec3 target = entity.getBoundingBox().getCenter();
         BlockHitResult hit = player.level().clip(new ClipContext(start, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         return hit.getType() != HitResult.Type.BLOCK;
     }
 
     private static BlockPos findShadowSpawn(ServerPlayer player, BlockPos preferred, boolean ignoreLight) {
-        for (int dy = -2; dy <= 2; dy++) {
+        for (int dy = -4; dy <= 4; dy++) {
             BlockPos candidate = preferred.offset(0, dy, 0);
             if (canSpawnShadowAt(player, candidate, ignoreLight)) {
                 return candidate;
@@ -410,14 +410,10 @@ public final class FearSystem {
     }
 
     private static boolean hasClearWatcherSpace(ServerPlayer player, BlockPos pos) {
-        for (int x = -1; x <= 1; x++) {
-            for (int y = 0; y <= 2; y++) {
-                for (int z = -1; z <= 1; z++) {
-                    BlockPos check = pos.offset(x, y, z);
-                    if (!player.level().getBlockState(check).getCollisionShape(player.level(), check).isEmpty()) {
-                        return false;
-                    }
-                }
+        for (int y = 0; y <= 2; y++) {
+            BlockPos check = pos.above(y);
+            if (!player.level().getBlockState(check).getCollisionShape(player.level(), check).isEmpty()) {
+                return false;
             }
         }
         return true;
