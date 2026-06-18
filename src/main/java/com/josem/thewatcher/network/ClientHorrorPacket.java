@@ -1,6 +1,7 @@
 package com.josem.thewatcher.network;
 
 import com.josem.thewatcher.client.ClientEffects;
+import com.josem.thewatcher.game.TheWatcherConfig;
 import java.util.function.Supplier;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
@@ -28,7 +29,7 @@ public final class ClientHorrorPacket {
                 case 1  -> ClientEffects.playFootstep();
                 case 2  -> ClientEffects.playFalseCreeper();
                 case 3  -> ClientEffects.playWhisper();
-                case 4  -> ClientEffects.showFakeCrash();
+                case 4  -> { if (TheWatcherConfig.fakeCrashEnabled()) ClientEffects.showFakeCrash(); }
                 case 5  -> ClientEffects.playEchoBreak();  // new: eco de minería
                 case 6  -> ClientEffects.playEchoChest();  // new: eco de cofre
                 case 100 -> ClientEffects.setFearLevel(packet.value);

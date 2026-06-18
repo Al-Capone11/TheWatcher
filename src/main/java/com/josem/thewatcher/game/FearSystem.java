@@ -56,6 +56,7 @@ public final class FearSystem {
     private static final String FEAR             = "EchoFear";
     private static final String STILL_TICKS      = "EchoStillTicks";
     private static final String MOVE_TICKS       = "EchoMoveTicks";
+    private static final String FEAR_BUFFER      = "EchoFearBuffer";
     private static final String LAST_X           = "EchoLastX";
     private static final String LAST_Y           = "EchoLastY";
     private static final String LAST_Z           = "EchoLastZ";
@@ -119,7 +120,7 @@ public final class FearSystem {
     @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
-        if (getFear(player) < 20) return;
+        if (!TheWatcherConfig.actionEchoesEnabled() || getFear(player) < 20) return;
         CompoundTag data = player.getPersistentData();
         // Only schedule if no echo is already pending (don't overlap)
         if (data.getInt(ECHO_BREAK_TICK) == 0) {
@@ -144,7 +145,7 @@ public final class FearSystem {
         }
 
         // Schedule a delayed chest echo (new in 0.1.8)
-        if (getFear(player) >= 20 && isContainer(state) && data.getInt(ECHO_CHEST_TICK) == 0) {
+        if (TheWatcherConfig.actionEchoesEnabled() && getFear(player) >= 20 && isContainer(state) && data.getInt(ECHO_CHEST_TICK) == 0) {
             int delay = 10 + player.getRandom().nextInt(21);
             data.putInt(ECHO_CHEST_TICK, player.tickCount + delay);
         }
@@ -205,9 +206,17 @@ public final class FearSystem {
         if (player.tickCount % 20 != 0) return;
         int fear = getFear(player);
         int light = player.level().getMaxLocalRawBrightness(player.blockPosition());
-        if (light <= 3)                       fear += 1;
-        if (data.getInt(STILL_TICKS) > 100)   fear += 1;
-        if (isNearLitCampfire(player) || player.level().canSeeSky(player.blockPosition())) fear -= 2;
+        int gain = 0;
+        int loss = 0;
+        if (light <= 3)                       gain += 1;
+        if (data.getInt(STILL_TICKS) > 100)   gain += 1;
+        if (isNearLitCampfire(player) || player.level().canSeeSky(player.blockPosition())) loss += 2;
+        double delta = gain * TheWatcherConfig.fearIncreaseMultiplier()
+            - loss * TheWatcherConfig.fearDecreaseMultiplier();
+        double buffered = data.getDouble(FEAR_BUFFER) + delta;
+        int applied = buffered > 0.0D ? (int) Math.floor(buffered) : (int) Math.ceil(buffered);
+        fear += applied;
+        data.putDouble(FEAR_BUFFER, buffered - applied);
         setFear(player, Mth.clamp(fear, 0, 100));
     }
 
@@ -238,6 +247,7 @@ public final class FearSystem {
     }
 
     private static void handleEnvironment(ServerPlayer player, CompoundTag data) {
+        if (!TheWatcherConfig.environmentalEventsEnabled()) return;
         int fear = getFear(player);
         if (player.tickCount % 40 != 0) return;
         if (data.getBoolean(LAST_DOOR_ACTIVE)) {
@@ -276,7 +286,7 @@ public final class FearSystem {
 
         // ── Temp rename + force-equip (new in 0.1.8) ──────────────────────────
         // ECHO_RESTORE_TICK == 0 means no haunted item is currently active
-        if (data.getInt(ECHO_RESTORE_TICK) == 0 && player.getRandom().nextInt(8) == 0) {
+        if (TheWatcherConfig.itemHauntingEnabled() && data.getInt(ECHO_RESTORE_TICK) == 0 && player.getRandom().nextInt(8) == 0) {
             for (int attempt = 0; attempt < 9; attempt++) {
                 int slot = player.getRandom().nextInt(9); // hotbar only (0–8)
                 ItemStack stack = player.getInventory().getItem(slot);
@@ -294,7 +304,7 @@ public final class FearSystem {
         }
 
         // ── Improved hotbar drift: swap currently held slot with a non-adjacent one ──
-        if (data.getInt(ECHO_RESTORE_TICK) == 0 && player.getRandom().nextInt(10) == 0) {
+        if (TheWatcherConfig.hotbarDriftEnabled() && data.getInt(ECHO_RESTORE_TICK) == 0 && player.getRandom().nextInt(10) == 0) {
             int current = player.getInventory().selected;
             int target  = -1;
             for (int t = 0; t < 20; t++) {
@@ -312,7 +322,7 @@ public final class FearSystem {
     }
 
     private static void handleAnimals(ServerPlayer player) {
-        if (getFear(player) <= 50 || player.tickCount % 10 != 0) return;
+        if (!TheWatcherConfig.animalStaringEnabled() || getFear(player) <= 50 || player.tickCount % 10 != 0) return;
         List<Animal> animals = player.level().getEntitiesOfClass(
             Animal.class, player.getBoundingBox().inflate(10.0D), EntitySelector.ENTITY_STILL_ALIVE);
         for (Animal animal : animals) animal.getLookControl().setLookAt(player, 30.0F, 30.0F);
