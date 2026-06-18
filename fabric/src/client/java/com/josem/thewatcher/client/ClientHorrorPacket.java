@@ -22,6 +22,8 @@ public final class ClientHorrorPacket {
                 case 4  -> { if (TheWatcherConfig.fakeCrashEnabled()) ClientEffects.showFakeCrash(); }
                 case 5  -> ClientEffects.playEchoBreak();  // new: eco de minería
                 case 6  -> ClientEffects.playEchoChest();  // new: eco de cofre
+                case 7  -> ClientEffects.playClicker();
+                case 8  -> ClientEffects.playGrowl();
                 case 100 -> ClientEffects.setFearLevel(value);
                 case 101 -> ClientEffects.setFearBarEnabled(value != 0);
                 default -> {}

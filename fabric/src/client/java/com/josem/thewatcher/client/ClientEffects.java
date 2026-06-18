@@ -82,6 +82,30 @@ public final class ClientEffects {
             0.3F, 0.85F + random.nextFloat() * 0.2F, false);
     }
 
+    public static void playClicker() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) return;
+        RandomSource random = player.getRandom();
+        player.level().playLocalSound(
+            player.getX() + random.nextInt(9) - 4,
+            player.getY(),
+            player.getZ() + random.nextInt(9) - 4,
+            SoundEvents.WARDEN_TENDRIL_CLICKS, SoundSource.HOSTILE,
+            1.0F, 0.4F + random.nextFloat() * 0.2F, false);
+    }
+
+    public static void playGrowl() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) return;
+        RandomSource random = player.getRandom();
+        player.level().playLocalSound(
+            player.getX() + random.nextInt(9) - 4,
+            player.getY(),
+            player.getZ() + random.nextInt(9) - 4,
+            SoundEvents.ZOMBIE_AMBIENT, SoundSource.HOSTILE,
+            0.8F, 0.3F + random.nextFloat() * 0.2F, false);
+    }
+
     // ── tick (called from TheWatcherFabricClient) ─────────────────────────────
 
     public static void tickFakeCrash(Minecraft client) {

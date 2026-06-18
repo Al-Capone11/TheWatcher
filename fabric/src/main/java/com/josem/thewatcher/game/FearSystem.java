@@ -166,6 +166,7 @@ public final class FearSystem {
         updateFear(player, data);
         syncFearHud(player, data);
         handleAuditoryHallucinations(player, data);
+        handleFakeCrash(player, data);            // new fake crash event
         handleEchoActions(player, data);          // new in 0.1.8
         handleEnvironment(player, data);
         handleInventory(player, data);
@@ -200,6 +201,7 @@ public final class FearSystem {
         if (isNearLitCampfire(player) || player.level().canSeeSky(player.blockPosition())) loss += 2;
         double delta = gain * TheWatcherConfig.fearIncreaseMultiplier()
             - loss * TheWatcherConfig.fearDecreaseMultiplier();
+        if (delta > 0 && isHoldingTorch(player)) delta *= 0.5D;
         double buffered = data.getDouble(FEAR_BUFFER) + delta;
         int applied = buffered > 0.0D ? (int) Math.floor(buffered) : (int) Math.ceil(buffered);
         fear += applied;
@@ -217,6 +219,16 @@ public final class FearSystem {
         }
         if (player.getRandom().nextInt(250 - Math.min(180, fear)) == 0) sendClientEvent(player, 2);
         if (player.getRandom().nextInt(220 - Math.min(170, fear)) == 0) sendClientEvent(player, 3);
+        if (fear >= 30 && player.getRandom().nextInt(280 - Math.min(200, fear)) == 0) sendClientEvent(player, 7);
+        if (fear >= 40 && player.getRandom().nextInt(300 - Math.min(220, fear)) == 0) sendClientEvent(player, 8);
+    }
+
+    private static void handleFakeCrash(ServerPlayer player, CompoundTag data) {
+        if (!TheWatcherConfig.fakeCrashEnabled() || player.tickCount % 20 != 0) return;
+        int fear = getFear(player);
+        if (fear >= 40 && fear <= 80) {
+            if (player.getRandom().nextInt(300) == 0) sendClientEvent(player, 4);
+        }
     }
 
     /** Fire deferred action echoes when their scheduled tick arrives. */
@@ -406,6 +418,8 @@ public final class FearSystem {
     private static void despawnShadow(ServerPlayer player, TheWatcherEntity shadow, CompoundTag data) {
         if (player.level() instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.SQUID_INK, shadow.getX(), shadow.getY(0.6D), shadow.getZ(), 12, 0.25D, 0.6D, 0.25D, 0.02D);
+            serverLevel.playSound(null, shadow.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE, 1.0F, 0.5F);
+            serverLevel.playSound(null, shadow.blockPosition(), SoundEvents.ENDERMAN_STARE, SoundSource.HOSTILE, 0.6F, 0.5F);
         }
         shadow.discard();
         setFear(player, 90);
@@ -491,6 +505,11 @@ public final class FearSystem {
         Block b = state.getBlock();
         return b instanceof ChestBlock || b instanceof TrappedChestBlock
             || b instanceof BarrelBlock || b instanceof EnderChestBlock;
+    }
+
+    private static boolean isHoldingTorch(ServerPlayer player) {
+        return player.getMainHandItem().is(Items.TORCH) || player.getOffhandItem().is(Items.TORCH)
+            || player.getMainHandItem().is(Items.SOUL_TORCH) || player.getOffhandItem().is(Items.SOUL_TORCH);
     }
 
     // ── NBT / network helpers ─────────────────────────────────────────────────
