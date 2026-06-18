@@ -21,49 +21,57 @@ public class TheWatcherConfigScreen {
         general.addEntry(entryBuilder.startDoubleField(Component.literal("Fear Increase Multiplier"), TheWatcherConfig.fearIncreaseMultiplier())
                 .setDefaultValue(1.0D)
                 .setMin(0.0D).setMax(10.0D)
+                .setTooltip(Component.literal("Multiplicador de la velocidad a la que el miedo aumenta."))
                 .setSaveConsumer(TheWatcherConfig::setFearIncreaseMultiplier)
                 .build());
 
         general.addEntry(entryBuilder.startDoubleField(Component.literal("Fear Decrease Multiplier"), TheWatcherConfig.fearDecreaseMultiplier())
                 .setDefaultValue(1.0D)
                 .setMin(0.0D).setMax(10.0D)
+                .setTooltip(Component.literal("Multiplicador de la velocidad a la que el miedo disminuye."))
                 .setSaveConsumer(TheWatcherConfig::setFearDecreaseMultiplier)
                 .build());
 
-        general.addEntry(entryBuilder.startDoubleField(Component.literal("Torch Fear Reduction"), TheWatcherConfig.torchFearReduction())
+        general.addEntry(entryBuilder.startDoubleField(Component.literal("Torch Fear Slowdown"), TheWatcherConfig.torchFearReduction())
                 .setDefaultValue(0.2D)
                 .setMin(0.0D).setMax(1.0D)
-                .setTooltip(Component.literal("Reducción de miedo al sostener antorchas. 0.2 = 20% menos de miedo."))
+                .setTooltip(Component.literal("Ralentiza el aumento de miedo al sostener antorchas. 0.2 = 20% más lento."))
                 .setSaveConsumer(TheWatcherConfig::setTorchFearReduction)
                 .build());
 
         general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Fake Crash Enabled"), TheWatcherConfig.fakeCrashEnabled())
                 .setDefaultValue(true)
+                .setTooltip(Component.literal("Activa o desactiva el susto que simula un crasheo del juego (entre 40% y 80% de miedo)."))
                 .setSaveConsumer(TheWatcherConfig::setFakeCrashEnabled)
                 .build());
 
         general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Action Echoes Enabled"), TheWatcherConfig.actionEchoesEnabled())
                 .setDefaultValue(true)
+                .setTooltip(Component.literal("Activa los ecos auditivos de acciones retrasadas (ej. escuchar que rompes un bloque segundos después)."))
                 .setSaveConsumer(TheWatcherConfig::setActionEchoesEnabled)
                 .build());
 
         general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Item Haunting Enabled"), TheWatcherConfig.itemHauntingEnabled())
                 .setDefaultValue(true)
+                .setTooltip(Component.literal("Permite que los nombres de los ítems en tu inventario cambien temporalmente por susurros."))
                 .setSaveConsumer(TheWatcherConfig::setItemHauntingEnabled)
                 .build());
 
         general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Hotbar Drift Enabled"), TheWatcherConfig.hotbarDriftEnabled())
                 .setDefaultValue(true)
+                .setTooltip(Component.literal("Activa el intercambio aleatorio de ítems en tu barra de herramientas cuando tienes mucho miedo."))
                 .setSaveConsumer(TheWatcherConfig::setHotbarDriftEnabled)
                 .build());
 
         general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Environmental Events Enabled"), TheWatcherConfig.environmentalEventsEnabled())
                 .setDefaultValue(true)
+                .setTooltip(Component.literal("Activa eventos en el entorno como puertas que se cierran o antorchas que se rompen."))
                 .setSaveConsumer(TheWatcherConfig::setEnvironmentalEventsEnabled)
                 .build());
 
         general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Animal Staring Enabled"), TheWatcherConfig.animalStaringEnabled())
                 .setDefaultValue(true)
+                .setTooltip(Component.literal("Los animales cercanos te mirarán fijamente cuando tu nivel de miedo sea alto."))
                 .setSaveConsumer(TheWatcherConfig::setAnimalStaringEnabled)
                 .build());
 

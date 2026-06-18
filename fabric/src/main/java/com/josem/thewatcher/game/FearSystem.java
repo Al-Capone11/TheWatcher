@@ -198,7 +198,7 @@ public final class FearSystem {
         int loss = 0;
         if (light <= 3)                       gain += 1;
         if (data.getInt(STILL_TICKS) > 100)   gain += 1;
-        if (isNearLitCampfire(player) || player.level().canSeeSky(player.blockPosition())) loss += 2;
+        if (isNearLitCampfire(player) || (player.level().isDay() && player.level().canSeeSky(player.blockPosition()))) loss += 2;
         double delta = gain * TheWatcherConfig.fearIncreaseMultiplier()
             - loss * TheWatcherConfig.fearDecreaseMultiplier();
         if (delta > 0 && isHoldingTorch(player)) delta *= (1.0D - TheWatcherConfig.torchFearReduction());
@@ -418,8 +418,9 @@ public final class FearSystem {
     private static void despawnShadow(ServerPlayer player, TheWatcherEntity shadow, CompoundTag data) {
         if (player.level() instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.SQUID_INK, shadow.getX(), shadow.getY(0.6D), shadow.getZ(), 12, 0.25D, 0.6D, 0.25D, 0.02D);
-            serverLevel.playSound(null, shadow.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE, 1.0F, 0.5F);
-            serverLevel.playSound(null, shadow.blockPosition(), SoundEvents.ENDERMAN_STARE, SoundSource.HOSTILE, 0.6F, 0.5F);
+            serverLevel.playSound(null, shadow.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE, 1.5F, 0.1F);
+            serverLevel.playSound(null, shadow.blockPosition(), SoundEvents.ENDERMAN_STARE, SoundSource.HOSTILE, 1.2F, 0.1F);
+            serverLevel.playSound(null, shadow.blockPosition(), SoundEvents.WITHER_DEATH, SoundSource.HOSTILE, 0.5F, 0.1F);
         }
         shadow.discard();
         setFear(player, 90);
