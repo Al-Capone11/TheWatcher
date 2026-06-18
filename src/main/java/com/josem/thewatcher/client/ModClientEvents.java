@@ -7,6 +7,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.client.ConfigScreenHandler;
+import net.minecraftforge.fml.ModLoadingContext;
 
 public final class ModClientEvents {
     public static final ModelLayerLocation SHADOW_LAYER =
@@ -19,6 +21,11 @@ public final class ModClientEvents {
         modBus.addListener(ModClientEvents::registerLayerDefinitions);
         modBus.addListener(ModClientEvents::registerRenderers);
         modBus.addListener(ModClientEvents::registerGuiOverlays);
+        
+        ModLoadingContext.get().registerExtensionPoint(
+            ConfigScreenHandler.ConfigScreenFactory.class,
+            () -> new ConfigScreenHandler.ConfigScreenFactory((mc, screen) -> TheWatcherConfigScreen.create(screen))
+        );
     }
 
     private static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {

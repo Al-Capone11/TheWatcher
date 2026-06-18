@@ -201,7 +201,7 @@ public final class FearSystem {
         if (isNearLitCampfire(player) || player.level().canSeeSky(player.blockPosition())) loss += 2;
         double delta = gain * TheWatcherConfig.fearIncreaseMultiplier()
             - loss * TheWatcherConfig.fearDecreaseMultiplier();
-        if (delta > 0 && isHoldingTorch(player)) delta *= 0.5D;
+        if (delta > 0 && isHoldingTorch(player)) delta *= (1.0D - TheWatcherConfig.torchFearReduction());
         double buffered = data.getDouble(FEAR_BUFFER) + delta;
         int applied = buffered > 0.0D ? (int) Math.floor(buffered) : (int) Math.ceil(buffered);
         fear += applied;

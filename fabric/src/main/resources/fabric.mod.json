@@ -1,4 +1,4 @@
-﻿{
+{
   "schemaVersion": 1,
   "id": "${mod_id}",
   "version": "${version}",
@@ -17,6 +17,9 @@
     ],
     "client": [
       "com.josem.thewatcher.client.TheWatcherFabricClient"
+    ],
+    "modmenu": [
+      "com.josem.thewatcher.client.TheWatcherModMenuImpl"
     ]
   },
   "mixins": [

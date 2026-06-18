@@ -13,6 +13,7 @@ public final class TheWatcherConfig {
     private static boolean loaded;
     private static double fearIncreaseMultiplier = 1.0D;
     private static double fearDecreaseMultiplier = 1.0D;
+    private static double torchFearReduction = 0.2D;
     private static boolean fakeCrashEnabled = true;
     private static boolean actionEchoesEnabled = true;
     private static boolean itemHauntingEnabled = true;
@@ -38,12 +39,11 @@ public final class TheWatcherConfig {
                     properties.store(writer, "The Watcher common config");
                 }
             }
-        } catch (IOException ignored) {
-            // Keep safe defaults if the config file cannot be read or written.
-        }
+        } catch (IOException ignored) {}
 
         fearIncreaseMultiplier = readDouble(properties, "fearIncreaseMultiplier", 1.0D, 0.0D, 10.0D);
         fearDecreaseMultiplier = readDouble(properties, "fearDecreaseMultiplier", 1.0D, 0.0D, 10.0D);
+        torchFearReduction = readDouble(properties, "torchFearReduction", 0.2D, 0.0D, 1.0D);
         fakeCrashEnabled = readBoolean(properties, "fakeCrashEnabled", true);
         actionEchoesEnabled = readBoolean(properties, "actionEchoesEnabled", true);
         itemHauntingEnabled = readBoolean(properties, "itemHauntingEnabled", true);
@@ -52,8 +52,29 @@ public final class TheWatcherConfig {
         animalStaringEnabled = readBoolean(properties, "animalStaringEnabled", true);
     }
 
+    public static synchronized void save() {
+        Properties properties = new Properties();
+        properties.setProperty("fearIncreaseMultiplier", Double.toString(fearIncreaseMultiplier));
+        properties.setProperty("fearDecreaseMultiplier", Double.toString(fearDecreaseMultiplier));
+        properties.setProperty("torchFearReduction", Double.toString(torchFearReduction));
+        properties.setProperty("fakeCrashEnabled", Boolean.toString(fakeCrashEnabled));
+        properties.setProperty("actionEchoesEnabled", Boolean.toString(actionEchoesEnabled));
+        properties.setProperty("itemHauntingEnabled", Boolean.toString(itemHauntingEnabled));
+        properties.setProperty("hotbarDriftEnabled", Boolean.toString(hotbarDriftEnabled));
+        properties.setProperty("environmentalEventsEnabled", Boolean.toString(environmentalEventsEnabled));
+        properties.setProperty("animalStaringEnabled", Boolean.toString(animalStaringEnabled));
+
+        try {
+            Files.createDirectories(CONFIG_PATH.getParent());
+            try (Writer writer = Files.newBufferedWriter(CONFIG_PATH)) {
+                properties.store(writer, "The Watcher common config");
+            }
+        } catch (IOException ignored) {}
+    }
+
     public static double fearIncreaseMultiplier() { load(); return fearIncreaseMultiplier; }
     public static double fearDecreaseMultiplier() { load(); return fearDecreaseMultiplier; }
+    public static double torchFearReduction() { load(); return torchFearReduction; }
     public static boolean fakeCrashEnabled() { load(); return fakeCrashEnabled; }
     public static boolean actionEchoesEnabled() { load(); return actionEchoesEnabled; }
     public static boolean itemHauntingEnabled() { load(); return itemHauntingEnabled; }
@@ -61,10 +82,21 @@ public final class TheWatcherConfig {
     public static boolean environmentalEventsEnabled() { load(); return environmentalEventsEnabled; }
     public static boolean animalStaringEnabled() { load(); return animalStaringEnabled; }
 
+    public static void setFearIncreaseMultiplier(double v) { fearIncreaseMultiplier = v; }
+    public static void setFearDecreaseMultiplier(double v) { fearDecreaseMultiplier = v; }
+    public static void setTorchFearReduction(double v) { torchFearReduction = v; }
+    public static void setFakeCrashEnabled(boolean v) { fakeCrashEnabled = v; }
+    public static void setActionEchoesEnabled(boolean v) { actionEchoesEnabled = v; }
+    public static void setItemHauntingEnabled(boolean v) { itemHauntingEnabled = v; }
+    public static void setHotbarDriftEnabled(boolean v) { hotbarDriftEnabled = v; }
+    public static void setEnvironmentalEventsEnabled(boolean v) { environmentalEventsEnabled = v; }
+    public static void setAnimalStaringEnabled(boolean v) { animalStaringEnabled = v; }
+
     private static Properties defaultProperties() {
         Properties properties = new Properties();
         properties.setProperty("fearIncreaseMultiplier", "1.0");
         properties.setProperty("fearDecreaseMultiplier", "1.0");
+        properties.setProperty("torchFearReduction", "0.2");
         properties.setProperty("fakeCrashEnabled", "true");
         properties.setProperty("actionEchoesEnabled", "true");
         properties.setProperty("itemHauntingEnabled", "true");
