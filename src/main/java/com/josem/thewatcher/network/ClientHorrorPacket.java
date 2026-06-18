@@ -9,14 +9,8 @@ public final class ClientHorrorPacket {
     private final int type;
     private final int value;
 
-    public ClientHorrorPacket(int type) {
-        this(type, 0);
-    }
-
-    public ClientHorrorPacket(int type, int value) {
-        this.type = type;
-        this.value = value;
-    }
+    public ClientHorrorPacket(int type)            { this(type, 0); }
+    public ClientHorrorPacket(int type, int value) { this.type = type; this.value = value; }
 
     public static void encode(ClientHorrorPacket packet, FriendlyByteBuf buffer) {
         buffer.writeVarInt(packet.type);
@@ -31,17 +25,17 @@ public final class ClientHorrorPacket {
         NetworkEvent.Context context = contextSupplier.get();
         context.enqueueWork(() -> {
             switch (packet.type) {
-                case 1 -> ClientEffects.playFootstep();
-                case 2 -> ClientEffects.playFalseCreeper();
-                case 3 -> ClientEffects.playWhisper();
-                case 4 -> ClientEffects.showFakeCrash();
+                case 1  -> ClientEffects.playFootstep();
+                case 2  -> ClientEffects.playFalseCreeper();
+                case 3  -> ClientEffects.playWhisper();
+                case 4  -> ClientEffects.showFakeCrash();
+                case 5  -> ClientEffects.playEchoBreak();  // new: eco de minería
+                case 6  -> ClientEffects.playEchoChest();  // new: eco de cofre
                 case 100 -> ClientEffects.setFearLevel(packet.value);
                 case 101 -> ClientEffects.setFearBarEnabled(packet.value != 0);
-                default -> {
-                }
+                default -> {}
             }
         });
         context.setPacketHandled(true);
     }
 }
-
