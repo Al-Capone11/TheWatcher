@@ -33,9 +33,9 @@ public class TheWatcherConfigScreen {
                 .build());
 
         general.addEntry(entryBuilder.startDoubleField(Component.literal("Torch Fear Slowdown"), TheWatcherConfig.torchFearReduction())
-                .setDefaultValue(0.2D)
+                .setDefaultValue(0.4D)
                 .setMin(0.0D).setMax(1.0D)
-                .setTooltip(Component.literal("Ralentiza el aumento de miedo al sostener antorchas. 0.2 = 20% más lento."))
+                .setTooltip(Component.literal("Ralentiza el aumento de miedo al sostener antorchas. 0.4 = 40% más lento."))
                 .setSaveConsumer(TheWatcherConfig::setTorchFearReduction)
                 .build());
 
@@ -73,6 +73,19 @@ public class TheWatcherConfigScreen {
                 .setDefaultValue(true)
                 .setTooltip(Component.literal("Los animales cercanos te mirarán fijamente cuando tu nivel de miedo sea alto."))
                 .setSaveConsumer(TheWatcherConfig::setAnimalStaringEnabled)
+                .build());
+
+        general.addEntry(entryBuilder.startStringDropdownMenu(Component.literal("Fear Bar Anchor"), TheWatcherConfig.fearBarAnchor())
+                .setDefaultValue("RIGHT")
+                .setSelections(java.util.List.of("LEFT", "RIGHT"))
+                .setTooltip(Component.literal("Lado de la pantalla donde se ancla la barra de miedo (LEFT o RIGHT)."))
+                .setSaveConsumer(TheWatcherConfig::setFearBarAnchor)
+                .build());
+
+        general.addEntry(entryBuilder.startIntField(Component.literal("Fear Bar Y Offset"), TheWatcherConfig.fearBarYOffset())
+                .setDefaultValue(0)
+                .setTooltip(Component.literal("Desplazamiento vertical de la barra de miedo (en píxeles). Valores negativos la suben, positivos la bajan."))
+                .setSaveConsumer(TheWatcherConfig::setFearBarYOffset)
                 .build());
 
         return builder.build();

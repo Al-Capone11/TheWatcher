@@ -196,7 +196,8 @@ public final class FearSystem {
         int light = player.level().getMaxLocalRawBrightness(player.blockPosition());
         int gain = 0;
         int loss = 0;
-        if (light <= 3)                       gain += 1;
+        boolean nearLavaNoSafeLight = isNearLavaAndNoSafeLight(player);
+        if (light <= 3 || nearLavaNoSafeLight) gain += 1;
         if (data.getInt(STILL_TICKS) > 100)   gain += 1;
         if (isNearLitCampfire(player) || (player.level().isDay() && player.level().canSeeSky(player.blockPosition()))) loss += 2;
         double delta = gain * TheWatcherConfig.fearIncreaseMultiplier()
@@ -487,6 +488,31 @@ public final class FearSystem {
             if (st.getBlock() instanceof CampfireBlock && st.hasProperty(BlockStateProperties.LIT) && st.getValue(BlockStateProperties.LIT)) return true;
         }
         return false;
+    }
+
+    private static boolean isNearLavaAndNoSafeLight(ServerPlayer player) {
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+        BlockPos origin = player.blockPosition();
+        boolean foundLava = false;
+        boolean foundSafeLight = false;
+        for (int x = -4; x <= 4; x++) for (int y = -2; y <= 2; y++) for (int z = -4; z <= 4; z++) {
+            mutable.set(origin.getX() + x, origin.getY() + y, origin.getZ() + z);
+            BlockState st = player.level().getBlockState(mutable);
+            if (st.getFluidState().is(net.minecraft.tags.FluidTags.LAVA)) {
+                foundLava = true;
+            } else {
+                Block b = st.getBlock();
+                if (b instanceof TorchBlock || b instanceof WallTorchBlock ||
+                    b instanceof net.minecraft.world.level.block.LanternBlock ||
+                    st.is(net.minecraft.world.level.block.Blocks.GLOWSTONE) ||
+                    b instanceof net.minecraft.world.level.block.RedstoneLampBlock ||
+                    b instanceof net.minecraft.world.level.block.EndRodBlock ||
+                    (b instanceof CampfireBlock && st.hasProperty(BlockStateProperties.LIT) && st.getValue(BlockStateProperties.LIT))) {
+                    foundSafeLight = true;
+                }
+            }
+        }
+        return foundLava && !foundSafeLight;
     }
 
     private static void breakNearbyTorch(ServerPlayer player) {
