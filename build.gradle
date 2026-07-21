@@ -1,111 +1,18 @@
-plugins {
-    id 'eclipse'
-    id 'idea'
-    id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+tasks.register('buildForge', GradleBuild) {
+    dir = file("${rootDir}/forge")
+    tasks = ['build']
 }
 
-version = mod_version
-group = mod_group_id
-
-base {
-    archivesName = "the-watcher"
-}
-
-// Use Gradle default build/ directory for this project
-def projectReleaseDir = file("${rootDir}/dist/forge")
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-minecraft {
-    mappings channel: mappings_channel, version: mappings_version
-
-    copyIdeResources = true
-
-    runs {
-        configureEach {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        client {
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-
-        server {
-            property 'forge.enabledGameTestNamespaces', mod_id
-            args '--nogui'
-        }
-    }
-}
-
-repositories {
-    maven { url = 'https://maven.minecraftforge.net' }
-    maven { url = "https://maven.shedaniel.me/" }
-    mavenCentral()
-}
-
-dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    implementation fg.deobf("me.shedaniel.cloth:cloth-config-forge:11.1.118")
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}
-
-processResources {
-    var replaceProperties = [
-        minecraft_version      : minecraft_version,
-        minecraft_version_range: minecraft_version_range,
-        forge_version_range    : forge_version_range,
-        loader_version_range   : loader_version_range,
-        mod_id                 : mod_id,
-        mod_name               : mod_name,
-        mod_license            : mod_license,
-        mod_version            : mod_version,
-        mod_authors            : mod_authors,
-        mod_description        : mod_description
-    ]
-
-    inputs.properties replaceProperties
-
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
-        expand replaceProperties
-    }
-}
-
-
-// Build Fabric and place the release jar in dist/fabric/
 tasks.register('buildFabric', GradleBuild) {
-    group = 'build'
-    description = 'Compila Fabric y copia el JAR a dist/fabric/'
     dir = file("${rootDir}/fabric")
     tasks = ['build']
 }
 
-// Build NeoForge and place the release jar in dist/neoforge/
 tasks.register('buildNeoForge', GradleBuild) {
-    group = 'build'
-    description = 'Compila NeoForge y copia el JAR a dist/neoforge/'
     dir = file("${rootDir}/neoforge")
     tasks = ['build']
 }
 
-// Build all loaders and place release jars in separated dist/ subfolders.
 tasks.register('releaseAll') {
-    group = 'build'
-    description = 'Compila Forge, Fabric y NeoForge; copia los JARs a dist/forge, dist/fabric y dist/neoforge'
-    dependsOn 'build', 'buildFabric', 'buildNeoForge'
-}
-
-jar {
-    archiveClassifier = 'forge'
-    destinationDirectory = projectReleaseDir
+    dependsOn 'buildForge', 'buildFabric', 'buildNeoForge'
 }

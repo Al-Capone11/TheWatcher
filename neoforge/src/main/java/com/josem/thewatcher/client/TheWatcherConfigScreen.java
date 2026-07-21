@@ -11,80 +11,93 @@ public class TheWatcherConfigScreen {
     public static Screen create(Screen parent) {
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
-                .setTitle(Component.literal("The Watcher Configuration"));
+                .setTitle(Component.translatable("config.thewatcher.title"));
 
         builder.setSavingRunnable(TheWatcherConfig::save);
 
-        ConfigCategory general = builder.getOrCreateCategory(Component.literal("General Settings"));
+        ConfigCategory general = builder.getOrCreateCategory(Component.translatable("config.thewatcher.category.general"));
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
-        general.addEntry(entryBuilder.startDoubleField(Component.literal("Fear Increase Multiplier"), TheWatcherConfig.fearIncreaseMultiplier())
+        general.addEntry(entryBuilder.startDoubleField(Component.translatable("config.thewatcher.fear_increase_multiplier"), TheWatcherConfig.fearIncreaseMultiplier())
                 .setDefaultValue(1.0D)
                 .setMin(0.0D).setMax(10.0D)
-                .setTooltip(Component.literal("Multiplicador de la velocidad a la que el miedo aumenta."))
+                .setTooltip(Component.translatable("config.thewatcher.fear_increase_multiplier.tooltip"))
                 .setSaveConsumer(TheWatcherConfig::setFearIncreaseMultiplier)
                 .build());
 
-        general.addEntry(entryBuilder.startDoubleField(Component.literal("Fear Decrease Multiplier"), TheWatcherConfig.fearDecreaseMultiplier())
+        general.addEntry(entryBuilder.startDoubleField(Component.translatable("config.thewatcher.fear_decrease_multiplier"), TheWatcherConfig.fearDecreaseMultiplier())
                 .setDefaultValue(1.0D)
                 .setMin(0.0D).setMax(10.0D)
-                .setTooltip(Component.literal("Multiplicador de la velocidad a la que el miedo disminuye."))
+                .setTooltip(Component.translatable("config.thewatcher.fear_decrease_multiplier.tooltip"))
                 .setSaveConsumer(TheWatcherConfig::setFearDecreaseMultiplier)
                 .build());
 
-        general.addEntry(entryBuilder.startDoubleField(Component.literal("Torch Fear Slowdown"), TheWatcherConfig.torchFearReduction())
+        general.addEntry(entryBuilder.startDoubleField(Component.translatable("config.thewatcher.torch_fear_reduction"), TheWatcherConfig.torchFearReduction())
                 .setDefaultValue(0.4D)
                 .setMin(0.0D).setMax(1.0D)
-                .setTooltip(Component.literal("Ralentiza el aumento de miedo al sostener antorchas. 0.4 = 40% más lento."))
+                .setTooltip(Component.translatable("config.thewatcher.torch_fear_reduction.tooltip"))
                 .setSaveConsumer(TheWatcherConfig::setTorchFearReduction)
                 .build());
 
-        general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Fake Crash Enabled"), TheWatcherConfig.fakeCrashEnabled())
+        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.thewatcher.fake_crash_enabled"), TheWatcherConfig.fakeCrashEnabled())
                 .setDefaultValue(true)
-                .setTooltip(Component.literal("Activa o desactiva el susto que simula un crasheo del juego (entre 40% y 80% de miedo)."))
+                .setTooltip(Component.translatable("config.thewatcher.fake_crash_enabled.tooltip"))
                 .setSaveConsumer(TheWatcherConfig::setFakeCrashEnabled)
                 .build());
 
-        general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Action Echoes Enabled"), TheWatcherConfig.actionEchoesEnabled())
+        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.thewatcher.action_echoes_enabled"), TheWatcherConfig.actionEchoesEnabled())
                 .setDefaultValue(true)
-                .setTooltip(Component.literal("Activa los ecos auditivos de acciones retrasadas (ej. escuchar que rompes un bloque segundos después)."))
+                .setTooltip(Component.translatable("config.thewatcher.action_echoes_enabled.tooltip"))
                 .setSaveConsumer(TheWatcherConfig::setActionEchoesEnabled)
                 .build());
 
-        general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Item Haunting Enabled"), TheWatcherConfig.itemHauntingEnabled())
+        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.thewatcher.item_haunting_enabled"), TheWatcherConfig.itemHauntingEnabled())
                 .setDefaultValue(true)
-                .setTooltip(Component.literal("Permite que los nombres de los ítems en tu inventario cambien temporalmente por susurros."))
+                .setTooltip(Component.translatable("config.thewatcher.item_haunting_enabled.tooltip"))
                 .setSaveConsumer(TheWatcherConfig::setItemHauntingEnabled)
                 .build());
 
-        general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Hotbar Drift Enabled"), TheWatcherConfig.hotbarDriftEnabled())
+        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.thewatcher.hotbar_drift_enabled"), TheWatcherConfig.hotbarDriftEnabled())
                 .setDefaultValue(true)
-                .setTooltip(Component.literal("Activa el intercambio aleatorio de ítems en tu barra de herramientas cuando tienes mucho miedo."))
+                .setTooltip(Component.translatable("config.thewatcher.hotbar_drift_enabled.tooltip"))
                 .setSaveConsumer(TheWatcherConfig::setHotbarDriftEnabled)
                 .build());
 
-        general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Environmental Events Enabled"), TheWatcherConfig.environmentalEventsEnabled())
+        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.thewatcher.environmental_events_enabled"), TheWatcherConfig.environmentalEventsEnabled())
                 .setDefaultValue(true)
-                .setTooltip(Component.literal("Activa eventos en el entorno como puertas que se cierran o antorchas que se rompen."))
+                .setTooltip(Component.translatable("config.thewatcher.environmental_events_enabled.tooltip"))
                 .setSaveConsumer(TheWatcherConfig::setEnvironmentalEventsEnabled)
                 .build());
 
-        general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Animal Staring Enabled"), TheWatcherConfig.animalStaringEnabled())
+        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.thewatcher.animal_staring_enabled"), TheWatcherConfig.animalStaringEnabled())
                 .setDefaultValue(true)
-                .setTooltip(Component.literal("Los animales cercanos te mirarán fijamente cuando tu nivel de miedo sea alto."))
+                .setTooltip(Component.translatable("config.thewatcher.animal_staring_enabled.tooltip"))
                 .setSaveConsumer(TheWatcherConfig::setAnimalStaringEnabled)
                 .build());
 
-        general.addEntry(entryBuilder.startStringDropdownMenu(Component.literal("Fear Bar Anchor"), TheWatcherConfig.fearBarAnchor())
+        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.thewatcher.shadow_enabled"), TheWatcherConfig.shadowEnabled())
+                .setDefaultValue(true)
+                .setTooltip(Component.translatable("config.thewatcher.shadow_enabled.tooltip"))
+                .setSaveConsumer(TheWatcherConfig::setShadowEnabled)
+                .build());
+
+        general.addEntry(entryBuilder.startIntField(Component.translatable("config.thewatcher.shadow_fear_threshold"), TheWatcherConfig.shadowFearThreshold())
+                .setDefaultValue(100)
+                .setMin(1).setMax(100)
+                .setTooltip(Component.translatable("config.thewatcher.shadow_fear_threshold.tooltip"))
+                .setSaveConsumer(TheWatcherConfig::setShadowFearThreshold)
+                .build());
+
+        general.addEntry(entryBuilder.startStringDropdownMenu(Component.translatable("config.thewatcher.fear_bar_anchor"), TheWatcherConfig.fearBarAnchor())
                 .setDefaultValue("RIGHT")
                 .setSelections(java.util.List.of("LEFT", "RIGHT"))
-                .setTooltip(Component.literal("Lado de la pantalla donde se ancla la barra de miedo (LEFT o RIGHT)."))
+                .setTooltip(Component.translatable("config.thewatcher.fear_bar_anchor.tooltip"))
                 .setSaveConsumer(TheWatcherConfig::setFearBarAnchor)
                 .build());
 
-        general.addEntry(entryBuilder.startIntField(Component.literal("Fear Bar Y Offset"), TheWatcherConfig.fearBarYOffset())
+        general.addEntry(entryBuilder.startIntField(Component.translatable("config.thewatcher.fear_bar_y_offset"), TheWatcherConfig.fearBarYOffset())
                 .setDefaultValue(0)
-                .setTooltip(Component.literal("Desplazamiento vertical de la barra de miedo (en píxeles). Valores negativos la suben, positivos la bajan."))
+                .setTooltip(Component.translatable("config.thewatcher.fear_bar_y_offset.tooltip"))
                 .setSaveConsumer(TheWatcherConfig::setFearBarYOffset)
                 .build());
 

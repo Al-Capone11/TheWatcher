@@ -14,8 +14,11 @@ public final class TheWatcherFabricClient implements ClientModInitializer {
     public void onInitializeClient() {
         EntityModelLayerRegistry.registerModelLayer(ModClientEvents.SHADOW_LAYER, ModClientEvents::createShadowLayer);
         EntityRendererRegistry.register(ModEntities.THE_WATCHER, TheWatcherRenderer::new);
-        HudRenderCallback.EVENT.register((graphics, tickDelta) -> FearBarOverlay.render(graphics));
-        ClientTickEvents.END_CLIENT_TICK.register(client -> ClientEffects.tickFakeCrash(client));
+        HudRenderCallback.EVENT.register((graphics, tickDelta) -> {
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            FearBarOverlay.render(graphics, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+        });
+        ClientTickEvents.END_CLIENT_TICK.register(client -> ClientEffects.onClientTick());
         ClientPlayNetworking.registerGlobalReceiver(ModNetworkIds.MAIN, ClientHorrorPacket::handle);
     }
 }

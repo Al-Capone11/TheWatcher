@@ -1,6 +1,6 @@
 package com.josem.thewatcher.mixin;
 
-import com.josem.thewatcher.game.FearSystem;
+
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -23,7 +23,7 @@ public abstract class LivingEntityMixin {
     @Inject(method = "completeUsingItem", at = @At("TAIL"))
     private void thewatcher$afterCompleteUsingItem(CallbackInfo ci) {
         if ((Object) this instanceof ServerPlayer player) {
-            FearSystem.onComfortFoodConsumed(player, thewatcher$usedItem);
+            com.josem.thewatcher.game.CommonFearSystem.onItemUseFinish(player, thewatcher$usedItem);
         }
         thewatcher$usedItem = ItemStack.EMPTY;
     }
