@@ -1,8 +1,3 @@
-tasks.register('buildForge', GradleBuild) {
-    dir = file("${rootDir}/forge")
-    tasks = ['build']
-}
-
 tasks.register('buildFabric', GradleBuild) {
     dir = file("${rootDir}/fabric")
     tasks = ['build']
@@ -14,5 +9,5 @@ tasks.register('buildNeoForge', GradleBuild) {
 }
 
 tasks.register('releaseAll') {
-    dependsOn 'buildForge', 'buildFabric', 'buildNeoForge'
+    dependsOn 'buildFabric', 'buildNeoForge'
 }
