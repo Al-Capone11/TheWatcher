@@ -15,7 +15,7 @@ public final class TheWatcherMod {
         ModEntities.ENTITY_TYPES.register(modBus);
         modBus.addListener(FearEventsNeoForge::onAttributes);
         ModNetwork.register(modBus);
-        modBus.addListener(ModClientEvents::register);
+        ModClientEvents.register(modBus);
     }
 }
 
