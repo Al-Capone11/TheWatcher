@@ -1,6 +1,5 @@
 package com.josem.thewatcher.network;
 
-import com.josem.thewatcher.TheWatcherMod;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -9,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public record ClientHorrorPacket(int eventId, int value) implements CustomPacketPayload {
     public static final Type<ClientHorrorPacket> TYPE =
-        new Type<>(ResourceLocation.fromNamespaceAndPath(TheWatcherMod.MOD_ID, "horror"));
+        new Type<>(ResourceLocation.fromNamespaceAndPath("thewatcher", "horror"));
 
     public static final StreamCodec<ByteBuf, ClientHorrorPacket> CODEC = StreamCodec.composite(
         ByteBufCodecs.VAR_INT, ClientHorrorPacket::eventId,

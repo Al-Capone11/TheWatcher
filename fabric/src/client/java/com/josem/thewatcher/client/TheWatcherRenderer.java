@@ -28,10 +28,10 @@ public final class TheWatcherRenderer extends LivingEntityRenderer<TheWatcherEnt
     }
 
     @Override
-    protected void setupRotations(TheWatcherEntity entity, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTicks) {
+    protected void setupRotations(TheWatcherEntity entity, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTicks, float scale) {
         Player player = Minecraft.getInstance().player;
         if (player == null) {
-            super.setupRotations(entity, poseStack, ageInTicks, rotationYaw, partialTicks);
+            super.setupRotations(entity, poseStack, ageInTicks, rotationYaw, partialTicks, scale);
             return;
         }
 
@@ -41,4 +41,3 @@ public final class TheWatcherRenderer extends LivingEntityRenderer<TheWatcherEnt
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - yawToPlayer));
     }
 }
-

@@ -2,17 +2,18 @@ package com.josem.thewatcher.client;
 
 import com.josem.thewatcher.TheWatcherMod;
 import com.josem.thewatcher.entity.ModEntities;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
 public final class ModClientEvents {
     public static final ModelLayerLocation SHADOW_LAYER =
-        new ModelLayerLocation(new ResourceLocation(TheWatcherMod.MOD_ID, "thewatcherentity"), "main");
+        new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(TheWatcherMod.MOD_ID, "thewatcherentity"), "main");
 
     private ModClientEvents() {
     }
@@ -20,11 +21,11 @@ public final class ModClientEvents {
     public static void register(IEventBus modBus) {
         modBus.addListener(ModClientEvents::registerLayerDefinitions);
         modBus.addListener(ModClientEvents::registerRenderers);
-        modBus.addListener(ModClientEvents::registerGuiOverlays);
+        modBus.addListener(ModClientEvents::registerGuiLayers);
         
         ModLoadingContext.get().registerExtensionPoint(
-            ConfigScreenHandler.ConfigScreenFactory.class,
-            () -> new ConfigScreenHandler.ConfigScreenFactory((mc, screen) -> TheWatcherConfigScreen.create(screen))
+            IConfigScreenFactory.class,
+            () -> (mc, screen) -> TheWatcherConfigScreen.create(screen)
         );
     }
 
@@ -39,13 +40,15 @@ public final class ModClientEvents {
         event.registerEntityRenderer(ModEntities.THE_WATCHER.get(), TheWatcherRenderer::new);
     }
 
-    private static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
-        event.registerAboveAll("fear_bar", new net.minecraftforge.client.gui.overlay.IGuiOverlay() {
-            @Override
-            public void render(net.minecraftforge.client.gui.overlay.ForgeGui gui, net.minecraft.client.gui.GuiGraphics guiGraphics, float partialTick, int width, int height) {
-                FearBarOverlay.render(guiGraphics, width, height);
-            }
-        });
+    private static void registerGuiLayers(RegisterGuiLayersEvent event) {
+        event.registerAboveAll(
+            ResourceLocation.fromNamespaceAndPath(TheWatcherMod.MOD_ID, "fear_bar"),
+            (guiGraphics, deltaTracker) -> FearBarOverlay.render(
+                guiGraphics,
+                Minecraft.getInstance().getWindow().getGuiScaledWidth(),
+                Minecraft.getInstance().getWindow().getGuiScaledHeight()
+            )
+        );
     }
 }
 

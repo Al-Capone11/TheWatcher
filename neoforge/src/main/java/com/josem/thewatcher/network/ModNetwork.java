@@ -1,32 +1,42 @@
 package com.josem.thewatcher.network;
 
-import com.josem.thewatcher.TheWatcherMod;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
+import com.josem.thewatcher.client.ClientEffects;
+import com.josem.thewatcher.game.TheWatcherConfig;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public final class ModNetwork {
-    private static final String PROTOCOL_VERSION = "1";
-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
-        new ResourceLocation(TheWatcherMod.MOD_ID, "main"),
-        () -> PROTOCOL_VERSION,
-        PROTOCOL_VERSION::equals,
-        PROTOCOL_VERSION::equals
-    );
-
-    private static int packetId;
-
     private ModNetwork() {
     }
 
-    public static void register() {
-        CHANNEL.registerMessage(
-            packetId++,
-            ClientHorrorPacket.class,
-            ClientHorrorPacket::encode,
-            ClientHorrorPacket::decode,
-            ClientHorrorPacket::handle
+    public static void register(IEventBus modBus) {
+        modBus.addListener(ModNetwork::onRegisterPayloads);
+    }
+
+    private static void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("1");
+        registrar.playToClient(
+            ClientHorrorPacket.TYPE,
+            ClientHorrorPacket.CODEC,
+            (packet, context) -> context.enqueueWork(() -> handlePacket(packet))
         );
+    }
+
+    private static void handlePacket(ClientHorrorPacket packet) {
+        switch (packet.eventId()) {
+            case 1  -> ClientEffects.playFootstep();
+            case 2  -> ClientEffects.playFalseCreeper();
+            case 3  -> ClientEffects.playWhisper();
+            case 4  -> { if (TheWatcherConfig.fakeCrashEnabled()) ClientEffects.showFakeCrash(); }
+            case 5  -> ClientEffects.playEchoBreak();
+            case 6  -> ClientEffects.playEchoChest();
+            case 7  -> ClientEffects.playClicker();
+            case 8  -> ClientEffects.playGrowl();
+            case 100 -> ClientEffects.setFearLevel(packet.value());
+            case 101 -> ClientEffects.setFearBarEnabled(packet.value() != 0);
+            default -> {}
+        }
     }
 }
 

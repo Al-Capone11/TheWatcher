@@ -2,23 +2,20 @@ package com.josem.thewatcher;
 
 import com.josem.thewatcher.client.ModClientEvents;
 import com.josem.thewatcher.entity.ModEntities;
-
 import com.josem.thewatcher.network.ModNetwork;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import com.josem.thewatcher.game.FearEventsNeoForge;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
 
 @Mod(TheWatcherMod.MOD_ID)
 public final class TheWatcherMod {
     public static final String MOD_ID = "thewatcher";
 
-    public TheWatcherMod() {
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public TheWatcherMod(IEventBus modBus) {
         ModEntities.ENTITY_TYPES.register(modBus);
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ModClientEvents.register(modBus));
-        ModNetwork.register();
+        modBus.addListener(FearEventsNeoForge::onAttributes);
+        ModNetwork.register(modBus);
+        modBus.addListener(ModClientEvents::register);
     }
 }
 

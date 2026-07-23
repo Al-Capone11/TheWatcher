@@ -1,11 +1,10 @@
 package com.josem.thewatcher.platform;
 
 import com.josem.thewatcher.network.ClientHorrorPacket;
-import com.josem.thewatcher.network.ModNetwork;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
@@ -15,13 +14,13 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
     
     @Override
     public void sendClientEvent(ServerPlayer player, int eventId) {
-        ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ClientHorrorPacket(eventId));
+        PacketDistributor.sendToPlayer(player, new ClientHorrorPacket(eventId));
     }
 
     @Override
     public void sendFearState(ServerPlayer player, int fear, boolean visible) {
-        ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ClientHorrorPacket(100, fear));
-        ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ClientHorrorPacket(101, visible ? 1 : 0));
+        PacketDistributor.sendToPlayer(player, new ClientHorrorPacket(100, fear));
+        PacketDistributor.sendToPlayer(player, new ClientHorrorPacket(101, visible ? 1 : 0));
     }
 
     @Override

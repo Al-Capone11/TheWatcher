@@ -248,10 +248,12 @@ public final class CommonFearSystem {
         if (restoreTick > 0 && player.level().getGameTime() >= restoreTick) {
             for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
                 ItemStack rStack = player.getInventory().getItem(i);
-                if (!rStack.isEmpty() && rStack.hasTag() && rStack.getTag().getBoolean("WatcherHaunted")) {
-                    rStack.resetHoverName();
-                    rStack.getTag().remove("WatcherHaunted");
-                    if (rStack.getTag().isEmpty()) rStack.setTag(null);
+                if (!rStack.isEmpty()) {
+                    net.minecraft.world.item.component.CustomData customData = rStack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+                    if (customData != null && customData.contains("WatcherHaunted")) {
+                        rStack.remove(net.minecraft.core.component.DataComponents.CUSTOM_NAME);
+                        net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA, rStack, tag -> tag.remove("WatcherHaunted"));
+                    }
                 }
             }
             data.putLong(ECHO_RESTORE_TICK, 0);
@@ -265,9 +267,9 @@ public final class CommonFearSystem {
             for (int attempt = 0; attempt < 9; attempt++) {
                 int slot = player.getRandom().nextInt(9);
                 ItemStack stack = player.getInventory().getItem(slot);
-                if (!stack.isEmpty() && !stack.hasCustomHoverName()) {
-                    stack.setHoverName(WHISPERS[player.getRandom().nextInt(WHISPERS.length)]);
-                    stack.getOrCreateTag().putBoolean("WatcherHaunted", true);
+                if (!stack.isEmpty() && !stack.has(net.minecraft.core.component.DataComponents.CUSTOM_NAME)) {
+                    stack.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, WHISPERS[player.getRandom().nextInt(WHISPERS.length)]);
+                    net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA, stack, tag -> tag.putBoolean("WatcherHaunted", true));
                     player.getInventory().selected = slot;
                     player.connection.send(new ClientboundSetCarriedItemPacket(slot));
                     data.putLong(ECHO_RESTORE_TICK, player.level().getGameTime() + 200);

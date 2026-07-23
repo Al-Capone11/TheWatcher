@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 public final class FearBarOverlay {
-    public static final ResourceLocation ID = new ResourceLocation("thewatcher", "fear_bar");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("thewatcher", "fear_bar");
 
     private FearBarOverlay() {}
 

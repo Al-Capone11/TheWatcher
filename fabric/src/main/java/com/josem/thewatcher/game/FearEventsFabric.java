@@ -37,5 +37,9 @@ public class FearEventsFabric {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             CommonFearSystem.onPlayerLogin(handler.getPlayer());
         });
+
+        net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
+            CommonFearSystem.onPlayerClone(oldPlayer, newPlayer);
+        });
     }
 }

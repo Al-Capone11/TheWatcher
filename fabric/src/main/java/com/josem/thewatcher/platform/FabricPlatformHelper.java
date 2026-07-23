@@ -1,13 +1,10 @@
 package com.josem.thewatcher.platform;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
-import io.netty.buffer.Unpooled;
 import com.josem.thewatcher.bridge.EntityPersistentDataHolder;
-import com.josem.thewatcher.network.ModNetworkIds;
 
 public class FabricPlatformHelper implements IPlatformHelper {
 
@@ -18,23 +15,13 @@ public class FabricPlatformHelper implements IPlatformHelper {
 
     @Override
     public void sendClientEvent(ServerPlayer player, int eventId) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeVarInt(eventId);
-        buf.writeVarInt(0);
-        ServerPlayNetworking.send(player, ModNetworkIds.MAIN, buf);
+        ServerPlayNetworking.send(player, new com.josem.thewatcher.network.ClientHorrorPacket(eventId));
     }
 
     @Override
     public void sendFearState(ServerPlayer player, int fear, boolean visible) {
-        FriendlyByteBuf bufFear = new FriendlyByteBuf(Unpooled.buffer());
-        bufFear.writeVarInt(100);
-        bufFear.writeVarInt(fear);
-        ServerPlayNetworking.send(player, ModNetworkIds.MAIN, bufFear);
-
-        FriendlyByteBuf bufVis = new FriendlyByteBuf(Unpooled.buffer());
-        bufVis.writeVarInt(101);
-        bufVis.writeVarInt(visible ? 1 : 0);
-        ServerPlayNetworking.send(player, ModNetworkIds.MAIN, bufVis);
+        ServerPlayNetworking.send(player, new com.josem.thewatcher.network.ClientHorrorPacket(100, fear));
+        ServerPlayNetworking.send(player, new com.josem.thewatcher.network.ClientHorrorPacket(101, visible ? 1 : 0));
     }
 
     @Override

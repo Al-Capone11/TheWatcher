@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 public final class TheWatcherRenderer extends LivingEntityRenderer<TheWatcherEntity, TheWatcherModel<TheWatcherEntity>> {
-    private static final ResourceLocation SKIN = new ResourceLocation(TheWatcherMod.MOD_ID, "textures/entity/thewatcher.png");
+    private static final ResourceLocation SKIN = ResourceLocation.fromNamespaceAndPath(TheWatcherMod.MOD_ID, "textures/entity/thewatcher.png");
 
     public TheWatcherRenderer(EntityRendererProvider.Context context) {
         super(context, new TheWatcherModel<>(context.bakeLayer(ModClientEvents.SHADOW_LAYER)), 0.35F);
@@ -28,10 +28,10 @@ public final class TheWatcherRenderer extends LivingEntityRenderer<TheWatcherEnt
     }
 
     @Override
-    protected void setupRotations(TheWatcherEntity entity, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTicks) {
+    protected void setupRotations(TheWatcherEntity entity, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTicks, float scale) {
         Player player = Minecraft.getInstance().player;
         if (player == null) {
-            super.setupRotations(entity, poseStack, ageInTicks, rotationYaw, partialTicks);
+            super.setupRotations(entity, poseStack, ageInTicks, rotationYaw, partialTicks, scale);
             return;
         }
 
@@ -41,4 +41,3 @@ public final class TheWatcherRenderer extends LivingEntityRenderer<TheWatcherEnt
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - yawToPlayer));
     }
 }
-

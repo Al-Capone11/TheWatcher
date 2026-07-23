@@ -10,12 +10,16 @@ public final class TheWatcherMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playS2C().register(
+            com.josem.thewatcher.network.ClientHorrorPacket.TYPE, 
+            com.josem.thewatcher.network.ClientHorrorPacket.CODEC
+        );
         ModEntities.register();
         FearEventsFabric.init();
     }
 
     public static ResourceLocation id(String path) {
-        return new ResourceLocation(MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 }
 

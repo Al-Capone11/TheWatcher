@@ -2,7 +2,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'net.neoforged.gradle.userdev' version '7.0.145'
 }
 version = mod_version
 group = mod_group_id
@@ -12,28 +12,16 @@ base {
 // Use Gradle default neoforge/build/ directory
 // Place the final jar in dist/neoforge/
 def projectReleaseDir = file("${projectDir.parentFile}/dist/neoforge")
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-minecraft {
-    mappings channel: 'official', version: minecraft_version
-    copyIdeResources = true
-    runs {
-        configureEach {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
-        client {
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-        server {
-            property 'forge.enabledGameTestNamespaces', mod_id
-            args '--nogui'
-        }
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+runs {
+    configureEach {
+        systemProperty 'forge.logging.markers', 'REGISTRIES'
+        systemProperty 'forge.logging.console.level', 'debug'
+        modSource project.sourceSets.main
+    }
+    client { }
+    server {
+        programArgument '--nogui'
     }
 }
 sourceSets {
@@ -53,8 +41,8 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    minecraft "net.neoforged:forge:${neoforge_version}"
-    implementation "me.shedaniel.cloth:cloth-config-forge:11.1.118"
+    implementation "net.neoforged:neoforge:${neoforge_version}"
+    implementation "me.shedaniel.cloth:cloth-config-neoforge:15.0.140"
 }
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
@@ -74,12 +62,11 @@ processResources {
         mod_description        : mod_description
     ]
     inputs.properties replaceProperties
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
         expand replaceProperties
     }
 }
 jar {
     archiveClassifier = 'neoforge'
     destinationDirectory = projectReleaseDir
-    finalizedBy 'reobfJar'
 }
