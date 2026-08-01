@@ -16,7 +16,7 @@ public final class FearBarOverlay {
             return;
         }
 
-        int fear = ClientEffects.getFearLevel();
+        float fear = ClientEffects.getCurrentFearLevel();
         int frameWidth = 12;
         int frameHeight = 84;
         int innerHeight = 80;
@@ -34,7 +34,7 @@ public final class FearBarOverlay {
         graphics.fill(x + 2, fillY, x + frameWidth - 2, y + frameHeight - 2, 0xFF7B2CBF);
         graphics.fill(x + 2, fillY, x + 4, y + frameHeight - 2, 0xFFB86BFF);
         
-        String fearStr = Integer.toString(fear) + "%";
+        String fearStr = Math.round(fear) + "%";
         if ("LEFT".equalsIgnoreCase(anchor)) {
             graphics.drawString(minecraft.font, "Fear", x + frameWidth + 4, y + 2, 0xD7C8DB, false);
             graphics.drawString(minecraft.font, fearStr, x + frameWidth + 4, y + frameHeight - 10, 0xD7C8DB, false);

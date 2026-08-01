@@ -9,7 +9,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 public final class ClientEffects {
     private static int fakeCrashTicks;
-    private static int fearLevel;
+    private static int targetFearLevel;
+    private static float currentFearLevel;
     private static boolean fearBarEnabled = true;
 
     private ClientEffects() {}
@@ -108,14 +109,27 @@ public final class ClientEffects {
 
     // ── fear bar state ────────────────────────────────────────────────────────
 
-    public static int getFearLevel()               { return fearLevel; }
+    public static float getCurrentFearLevel()      { return currentFearLevel; }
+    public static int getTargetFearLevel()         { return targetFearLevel; }
     public static boolean isFearBarEnabled()       { return fearBarEnabled; }
-    public static void setFearLevel(int value)     { fearLevel = value; }
+    public static void setFearLevel(int value)     { 
+        if (Math.abs(targetFearLevel - currentFearLevel) > 10.0f) {
+            currentFearLevel = value; // snap if large change (e.g. login)
+        }
+        targetFearLevel = value; 
+    }
     public static void setFearBarEnabled(boolean b){ fearBarEnabled = b; }
 
     // ── tick ──────────────────────────────────────────────────────────────────
 
     public static void onClientTick() {
+        if (currentFearLevel != targetFearLevel) {
+            currentFearLevel += (targetFearLevel - currentFearLevel) * 0.1f;
+            if (Math.abs(targetFearLevel - currentFearLevel) < 0.05f) {
+                currentFearLevel = targetFearLevel;
+            }
+        }
+
         if (fakeCrashTicks <= 0) return;
         fakeCrashTicks--;
         if (fakeCrashTicks > 0) return;
