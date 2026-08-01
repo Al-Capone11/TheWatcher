@@ -6,6 +6,8 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -21,11 +23,20 @@ public final class ModClientEvents {
         modBus.addListener(ModClientEvents::registerLayerDefinitions);
         modBus.addListener(ModClientEvents::registerRenderers);
         modBus.addListener(ModClientEvents::registerGuiOverlays);
-        
+
+        // Client tick — registered on the Forge/NeoForge game event bus (not modBus)
+        MinecraftForge.EVENT_BUS.addListener(ModClientEvents::onClientTick);
+
         ModLoadingContext.get().registerExtensionPoint(
             ConfigScreenHandler.ConfigScreenFactory.class,
             () -> new ConfigScreenHandler.ConfigScreenFactory((mc, screen) -> TheWatcherConfigScreen.create(screen))
         );
+    }
+
+    private static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            ClientEffects.onClientTick();
+        }
     }
 
     private static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
@@ -48,4 +59,3 @@ public final class ModClientEvents {
         });
     }
 }
-
