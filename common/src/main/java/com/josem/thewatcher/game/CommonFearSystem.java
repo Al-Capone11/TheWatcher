@@ -200,7 +200,7 @@ public final class CommonFearSystem {
         if (!TheWatcherConfig.fakeCrashEnabled() || player.tickCount % 20 != 0) return;
         int fear = getFear(player);
         if (fear >= 40 && fear <= 80) {
-            if (player.getRandom().nextInt(300) == 0) sendClientEvent(player, 4);
+            if (player.getRandom().nextInt(80) == 0) sendClientEvent(player, 4);
         }
     }
 

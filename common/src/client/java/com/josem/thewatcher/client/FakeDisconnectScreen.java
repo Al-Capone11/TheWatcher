@@ -15,8 +15,13 @@ public final class FakeDisconnectScreen extends Screen {
     }
 
     @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
+    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderDirtBackground(graphics);
+        this.renderBackground(graphics);
         graphics.drawCenteredString(this.font, this.title, this.width / 2, this.height / 2 - 10, 0xFFFFFF);
         graphics.drawCenteredString(
             this.font,
