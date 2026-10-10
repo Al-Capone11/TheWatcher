@@ -30,5 +30,8 @@
   "config.thewatcher.fear_bar_anchor": "Fear Bar Anchor",
   "config.thewatcher.fear_bar_anchor.tooltip": "Side of the screen where the fear bar is anchored (LEFT or RIGHT).",
   "config.thewatcher.fear_bar_y_offset": "Fear Bar Y Offset",
-  "config.thewatcher.fear_bar_y_offset.tooltip": "Vertical offset of the fear bar (in pixels). Negative values move it up, positive values move it down."
+  "config.thewatcher.fear_bar_y_offset.tooltip": "Vertical offset of the fear bar (in pixels). Negative values move it up, positive values move it down.",
+  "whisper.thewatcher.see_you": "Can you see me?",
+  "whisper.thewatcher.behind_you": "Behind you",
+  "whisper.thewatcher.not_alone": "You are not alone"
 }

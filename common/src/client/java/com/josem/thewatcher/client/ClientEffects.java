@@ -12,6 +12,8 @@ public final class ClientEffects {
     private static int targetFearLevel;
     private static float currentFearLevel;
     private static boolean fearBarEnabled = true;
+    private static int ticksAtZero = 0;
+    private static final int ZERO_HIDE_TICKS = 100; // 5 seconds
 
     private ClientEffects() {}
 
@@ -112,6 +114,7 @@ public final class ClientEffects {
     public static float getCurrentFearLevel()      { return currentFearLevel; }
     public static int getTargetFearLevel()         { return targetFearLevel; }
     public static boolean isFearBarEnabled()       { return fearBarEnabled; }
+    public static boolean isFearBarAutoHidden()    { return ticksAtZero >= ZERO_HIDE_TICKS; }
     public static void setFearLevel(int value)     { 
         if (Math.abs(targetFearLevel - currentFearLevel) > 10.0f) {
             currentFearLevel = value; // snap if large change (e.g. login)
@@ -128,6 +131,13 @@ public final class ClientEffects {
             if (Math.abs(targetFearLevel - currentFearLevel) < 0.05f) {
                 currentFearLevel = targetFearLevel;
             }
+        }
+
+        // Track how long fear has been at 0 to auto-hide the bar
+        if (targetFearLevel == 0 && currentFearLevel <= 0.5f) {
+            if (ticksAtZero < ZERO_HIDE_TICKS) ticksAtZero++;
+        } else {
+            ticksAtZero = 0;
         }
 
         if (fakeCrashTicks <= 0) return;
