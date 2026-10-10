@@ -30,5 +30,8 @@
   "config.thewatcher.fear_bar_anchor": "Anclaje de Barra de Miedo",
   "config.thewatcher.fear_bar_anchor.tooltip": "Lado de la pantalla donde se ancla la barra de miedo (LEFT o RIGHT).",
   "config.thewatcher.fear_bar_y_offset": "Desplazamiento Y de Barra de Miedo",
-  "config.thewatcher.fear_bar_y_offset.tooltip": "Desplazamiento vertical de la barra de miedo (en píxeles). Valores negativos la suben, positivos la bajan."
+  "config.thewatcher.fear_bar_y_offset.tooltip": "Desplazamiento vertical de la barra de miedo (en píxeles). Valores negativos la suben, positivos la bajan.",
+  "whisper.thewatcher.see_you": "¿Me ves?",
+  "whisper.thewatcher.behind_you": "Detrás",
+  "whisper.thewatcher.not_alone": "No estás solo"
 }

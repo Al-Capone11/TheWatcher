@@ -15,7 +15,9 @@ public final class TheWatcherMod {
         ModEntities.ENTITY_TYPES.register(modBus);
         modBus.addListener(FearEventsNeoForge::onAttributes);
         ModNetwork.register(modBus);
-        ModClientEvents.register(modBus);
+        if (net.neoforged.fml.loading.FMLEnvironment.dist.isClient()) {
+            ModClientEvents.register(modBus);
+        }
     }
 }
 

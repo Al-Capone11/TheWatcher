@@ -70,14 +70,22 @@ public final class CommonFearSystem {
     private static final String ECHO_RESTORE_TICK = "EchoRestoreTick"; // when to restore name (0 = none)
 
     private static final Component[] WHISPERS = {
-        Component.literal("Me ves?"),
-        Component.literal("Detras"),
-        Component.literal("No estas solo")
+        Component.translatable("whisper.thewatcher.see_you"),
+        Component.translatable("whisper.thewatcher.behind_you"),
+        Component.translatable("whisper.thewatcher.not_alone")
     };
 
     private CommonFearSystem() {}
 
     public static void onPlayerTick(ServerPlayer player) {
+        // Skip ALL fear processing for spectators; reset fear to 0 on entry
+        if (player.isSpectator()) {
+            if (getFear(player) > 0) {
+                setFear(player, 0);
+                sendFearState(player);
+            }
+            return;
+        }
         CompoundTag data = Services.PLATFORM.getPersistentData(player);
         updateMovementState(player, data);
         updateFear(player, data);
@@ -174,7 +182,14 @@ public final class CommonFearSystem {
         if (isNearLitCampfire(player) || (player.level().isDay() && player.level().canSeeSky(player.blockPosition()))) loss += 2;
         double delta = gain * TheWatcherConfig.fearIncreaseMultiplier()
             - loss * TheWatcherConfig.fearDecreaseMultiplier();
-        if (delta > 0 && isHoldingTorch(player)) delta *= (1.0D - TheWatcherConfig.torchFearReduction());
+        if (delta > 0) {
+            if (hasSafeLightNearby(player)) {
+                delta = 0; // a placed light source (torch on floor/wall, lantern, ...) stops the climb entirely
+            } else if (isHoldingTorch(player)) {
+                double reduction = Mth.clamp(TheWatcherConfig.torchFearReduction(), 0.0D, 0.9D); // Cap reduction at 90% so it never completely pauses
+                delta *= (1.0D - reduction);
+            }
+        }
         double buffered = data.getDouble(FEAR_BUFFER) + delta;
         int applied = buffered > 0.0D ? (int) Math.floor(buffered) : (int) Math.ceil(buffered);
         fear += applied;
@@ -483,19 +498,32 @@ public final class CommonFearSystem {
             BlockState st = player.level().getBlockState(mutable);
             if (st.getFluidState().is(net.minecraft.tags.FluidTags.LAVA)) {
                 foundLava = true;
-            } else {
-                Block b = st.getBlock();
-                if (b instanceof TorchBlock || b instanceof WallTorchBlock ||
-                    b instanceof net.minecraft.world.level.block.LanternBlock ||
-                    st.is(net.minecraft.world.level.block.Blocks.GLOWSTONE) ||
-                    b instanceof net.minecraft.world.level.block.RedstoneLampBlock ||
-                    b instanceof net.minecraft.world.level.block.EndRodBlock ||
-                    (b instanceof CampfireBlock && st.hasProperty(BlockStateProperties.LIT) && st.getValue(BlockStateProperties.LIT))) {
-                    foundSafeLight = true;
-                }
+            } else if (isSafeLightBlock(st)) {
+                foundSafeLight = true;
             }
         }
         return foundLava && !foundSafeLight;
+    }
+
+    /** True if a placed light source (torch, lantern, glowstone, lit campfire, ...) exists within ±4/±2/±4 blocks. */
+    private static boolean hasSafeLightNearby(ServerPlayer player) {
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+        BlockPos origin = player.blockPosition();
+        for (int x = -4; x <= 4; x++) for (int y = -2; y <= 2; y++) for (int z = -4; z <= 4; z++) {
+            mutable.set(origin.getX() + x, origin.getY() + y, origin.getZ() + z);
+            if (isSafeLightBlock(player.level().getBlockState(mutable))) return true;
+        }
+        return false;
+    }
+
+    private static boolean isSafeLightBlock(BlockState st) {
+        Block b = st.getBlock();
+        return b instanceof TorchBlock || b instanceof WallTorchBlock ||
+            b instanceof net.minecraft.world.level.block.LanternBlock ||
+            st.is(net.minecraft.world.level.block.Blocks.GLOWSTONE) ||
+            b instanceof net.minecraft.world.level.block.RedstoneLampBlock ||
+            b instanceof net.minecraft.world.level.block.EndRodBlock ||
+            (b instanceof CampfireBlock && st.hasProperty(BlockStateProperties.LIT) && st.getValue(BlockStateProperties.LIT));
     }
 
     private static void breakNearbyTorch(ServerPlayer player) {
@@ -518,8 +546,14 @@ public final class CommonFearSystem {
     }
 
     private static boolean isHoldingTorch(ServerPlayer player) {
-        return player.getMainHandItem().is(Items.TORCH) || player.getOffhandItem().is(Items.TORCH)
-            || player.getMainHandItem().is(Items.SOUL_TORCH) || player.getOffhandItem().is(Items.SOUL_TORCH);
+        return isTorch(player.getMainHandItem()) || isTorch(player.getOffhandItem());
+    }
+
+    private static boolean isTorch(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        if (stack.is(Items.TORCH) || stack.is(Items.SOUL_TORCH) || stack.is(Items.LANTERN) || stack.is(Items.SOUL_LANTERN)) return true;
+        String name = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().toLowerCase();
+        return name.contains("torch") || name.contains("lantern") || name.contains("antorcha");
     }
 
     // ── NBT / network helpers ─────────────────────────────────────────────────

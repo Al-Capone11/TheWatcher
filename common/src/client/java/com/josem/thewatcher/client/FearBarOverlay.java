@@ -15,6 +15,10 @@ public final class FearBarOverlay {
         if (minecraft.options.hideGui || minecraft.player == null || !ClientEffects.isFearBarEnabled()) {
             return;
         }
+        // Hide in spectator mode
+        if (minecraft.player.isSpectator()) return;
+        // Hide when fear has been at 0 long enough
+        if (ClientEffects.isFearBarAutoHidden()) return;
 
         float fear = ClientEffects.getCurrentFearLevel();
         int frameWidth = 12;
